@@ -1629,8 +1629,8 @@ document.addEventListener('keydown', e => { if (e.key === 'Escape') closeModal()
 // personalised fields: name, daily КБЖВ, meal cards, modal totals, steps.
 // FAQ answers are never touched.
 (function loadClientData() {
-  const hash = location.hash.slice(1);
-  const param = new URLSearchParams(hash).get('d');
+  const param = new URLSearchParams(location.search).get('d')
+    || new URLSearchParams(location.hash.slice(1)).get('d');
   if (!param) return;
 
   let client;
@@ -1784,9 +1784,10 @@ document.addEventListener('keydown', e => { if (e.key === 'Escape') closeModal()
   }
 })();
 
-// Показуємо splash якщо немає #d= параметра
+// Показуємо splash якщо немає ?d= параметра
 (function checkPlan() {
-  const param = new URLSearchParams(location.hash.slice(1)).get('d');
+  const param = new URLSearchParams(location.search).get('d')
+    || new URLSearchParams(location.hash.slice(1)).get('d');
   if (!param) {
     document.getElementById('splash').classList.add('visible');
     document.getElementById('mainContent').style.display = 'none';
