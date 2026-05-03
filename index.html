@@ -1629,8 +1629,10 @@ document.addEventListener('keydown', e => { if (e.key === 'Escape') closeModal()
 // personalised fields: name, daily КБЖВ, meal cards, modal totals, steps.
 // FAQ answers are never touched.
 (function loadClientData() {
+  const hash = location.hash.slice(1);
+  const dMatch = hash.match(/(?:^|&)d=([^&]+)/);
   const param = new URLSearchParams(location.search).get('d')
-    || new URLSearchParams(location.hash.slice(1)).get('d');
+    || (dMatch ? dMatch[1] : null);
   if (!param) return;
 
   let client;
@@ -1786,8 +1788,10 @@ document.addEventListener('keydown', e => { if (e.key === 'Escape') closeModal()
 
 // Показуємо splash якщо немає ?d= параметра
 (function checkPlan() {
+  const hash = location.hash.slice(1);
+  const dMatch = hash.match(/(?:^|&)d=([^&]+)/);
   const param = new URLSearchParams(location.search).get('d')
-    || new URLSearchParams(location.hash.slice(1)).get('d');
+    || (dMatch ? dMatch[1] : null);
   if (!param) {
     document.getElementById('splash').classList.add('visible');
     document.getElementById('mainContent').style.display = 'none';
@@ -1799,11 +1803,6 @@ if (window.Telegram?.WebApp) {
   Telegram.WebApp.expand();
   document.addEventListener('touchmove', e => { if (e.touches.length > 1) e.preventDefault(); }, { passive: false });
 
-  // DEBUG — показуємо що реально бачить Telegram
-  const dbg = document.createElement('div');
-  dbg.style.cssText = 'position:fixed;bottom:0;left:0;right:0;background:#000;color:#0f0;font-size:10px;padding:8px;z-index:99999;word-break:break-all;max-height:120px;overflow:auto';
-  dbg.innerHTML = 'search: ' + location.search + '<br>hash: ' + location.hash + '<br>initData: ' + (Telegram.WebApp.initData || 'empty');
-  document.body.appendChild(dbg);
 }
 
 (function () {
