@@ -1630,6 +1630,7 @@ document.addEventListener('keydown', e => { if (e.key === 'Escape') closeModal()
 // FAQ answers are never touched.
 (function loadClientData() {
   const param = new URLSearchParams(location.search).get('d');
+  alert('URL: ' + location.href.slice(0, 80));
   if (!param) return;
 
   let client;
