@@ -1486,11 +1486,29 @@ const meals = {
   }
 };
 
+// Маппінг назва варіанту → фото
+const VARIANT_PHOTOS = {
+  'Вівсянка + Протеїн + Арахісова паста': { photo: 'breakfast-1.png', photoBg: 'linear-gradient(135deg, #2a1f0a 0%, #1c1408 100%)' },
+  'Вівсяно-млинці':                        { photo: 'breakfast-2.png', photoBg: 'linear-gradient(135deg, #1a1008 0%, #120e04 100%)' },
+  'Лосось + Хліб + Авокадо':               { photo: 'breakfast-3.png', photoBg: 'linear-gradient(135deg, #0a1a1f 0%, #061218 100%)' },
+  "Крупа + М'ясо + Авокадо":               { photo: 'breakfast-4.png', photoBg: 'linear-gradient(135deg, #0f1a0a 0%, #0a1208 100%)' },
+  'Крупа + Куряча грудка + Овочі + Олія':  { photo: 'lunch-1.png',     photoBg: 'linear-gradient(135deg, #1a0f08 0%, #120a04 100%)' },
+  'Гречка + Котлети з індичого фаршу + Овочі': { photo: 'lunch-2.png', photoBg: 'linear-gradient(135deg, #1a1208 0%, #110d04 100%)' },
+  'Макарони + Індичий фарш + Овочі':       { photo: 'lunch-3.png',     photoBg: 'linear-gradient(135deg, #0e1a10 0%, #091209 100%)' },
+  'Творог + Ягоди + Арахісова паста':       { photo: 'dinner-1.png',    photoBg: 'linear-gradient(135deg, #1a0f1f, #120a18)' },
+  'Куряча грудка + Авокадо + Соус з йогурту': { photo: 'dinner-2.png', photoBg: 'linear-gradient(135deg, #0f1a0a, #091208)' },
+  'Тунець + Авокадо + Соус з йогурту':     { photo: 'dinner-3.png',    photoBg: 'linear-gradient(135deg, #0a1520, #061018)' },
+  'Протеїновий коктейль (Творожний)':       { photo: 'dinner-4.png',    photoBg: 'linear-gradient(135deg, #120a1f, #0d0815)' },
+};
+
 function buildVariantHTML(v) {
-  const photoHTML = v.photo
-    ? `<img src="${v.photo}" alt="${v.name}" loading="lazy">`
+  const photoData = VARIANT_PHOTOS[v.name] || {};
+  const photo   = v.photo   || photoData.photo   || null;
+  const photoBg = v.photoBg || photoData.photoBg || '#1c2330';
+
+  const photoHTML = photo
+    ? `<img src="${photo}" alt="${v.name}" loading="lazy">`
     : `<div class="variant-photo-grad" style="background:${v.gradient || '#1c2330'}"><span style="filter:drop-shadow(0 4px 10px rgba(0,0,0,0.4))">${v.emoji || '🍽️'}</span></div>`;
-  const photoBg = v.photoBg || v.gradient || '#1c2330';
 
   // Ingredients can be objects {name,p,f,c,kcal} or plain strings
   let ingRows = '';
