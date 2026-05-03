@@ -1653,15 +1653,22 @@ document.addEventListener('keydown', e => { if (e.key === 'Escape') closeModal()
     || (dMatch ? dMatch[1] : null);
   if (!param) return;
 
+  function b64decode(str) {
+    const b64 = str.replace(/-/g, '+').replace(/_/g, '/');
+    const bytes = Uint8Array.from(atob(b64), c => c.charCodeAt(0));
+    return JSON.parse(new TextDecoder('utf-8').decode(bytes));
+  }
+
   let client;
   try {
-    const b64 = param.replace(/-/g, '+').replace(/_/g, '/');
-    const bytes = Uint8Array.from(atob(b64), c => c.charCodeAt(0));
-    client = JSON.parse(new TextDecoder('utf-8').decode(bytes));
+    client = b64decode(param);
   } catch (e) {
     console.warn('Failed to parse client data:', e);
     return;
   }
+
+  function applyClient(c) {
+    const client = c;
 
   // ── Name ──────────────────────────────────────────────────────────────────
   if (client.name) {
@@ -1805,6 +1812,18 @@ document.addEventListener('keydown', e => { if (e.key === 'Escape') closeModal()
       }
     });
   }
+  } // end applyClient
+
+  // Fetch full client data (with variants) from GitHub, then render
+  const slug = (client.slug || '').replace(/^@/, '');
+  const dataUrl = 'https://raw.githubusercontent.com/tiberiydoit/sculptnutrition/main/data/' + slug + '.json';
+  fetch(dataUrl)
+    .then(r => r.ok ? r.json() : null)
+    .then(full => {
+      if (full && full.variants) client.variants = full.variants;
+      applyClient(client);
+    })
+    .catch(() => applyClient(client));
 })();
 
 // Показуємо splash якщо немає ?d= параметра
