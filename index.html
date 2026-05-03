@@ -1507,7 +1507,7 @@ function buildVariantHTML(v) {
   const photoBg = v.photoBg || photoData.photoBg || '#1c2330';
 
   const photoHTML = photo
-    ? `<img src="${photo}" alt="${v.name}" loading="lazy">`
+    ? `<img src="${photo}" alt="${v.name}" loading="lazy" onerror="this.parentElement.innerHTML='<div class=\\'variant-photo-grad\\'  style=\\'background:#1c2330\\'>🍽️</div>'">`
     : `<div class="variant-photo-grad" style="background:${v.gradient || '#1c2330'}"><span style="filter:drop-shadow(0 4px 10px rgba(0,0,0,0.4))">${v.emoji || '🍽️'}</span></div>`;
 
   // Ingredients can be objects {name,p,f,c,kcal} or plain strings
