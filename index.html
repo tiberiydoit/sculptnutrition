@@ -1688,14 +1688,17 @@ document.addEventListener('keydown', e => { if (e.key === 'Escape') closeModal()
       Object.assign(varLookup, client.variants);
     }
 
+    // Tracks how many times each base key appeared (for обід_2, обід_3...)
+    const _keyCount = {};
     function _normMealName(name) {
-      // "Сніданок" → "сніданок", "Обід №1" → "обід", "Перекус 1" → "перекус"
       const n = name.toLowerCase().trim();
-      if (n.startsWith('сніданок')) return 'сніданок';
-      if (n.startsWith('обід'))    return 'обід';
-      if (n.startsWith('вечеря'))  return 'вечеря';
-      if (n.startsWith('перекус')) return 'перекус';
-      return n;
+      let base = n;
+      if (n.startsWith('сніданок')) base = 'сніданок';
+      else if (n.startsWith('обід'))    base = 'обід';
+      else if (n.startsWith('вечеря'))  base = 'вечеря';
+      else if (n.startsWith('перекус')) base = 'перекус';
+      _keyCount[base] = (_keyCount[base] || 0) + 1;
+      return _keyCount[base] === 1 ? base : `${base}_${_keyCount[base]}`;
     }
 
     client.meals.forEach((m, i) => {
