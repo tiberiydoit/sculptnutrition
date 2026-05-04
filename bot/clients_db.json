@@ -1515,6 +1515,21 @@
           }
         ]
       }
+    },
+    {
+      "slug": "sebii_sw",
+      "name": "@sebii_sw",
+      "display_name": "Sébastien",
+      "telegram_id": 497635772,
+      "daily": {
+        "kcal": 0,
+        "protein": 0,
+        "fat": 0,
+        "carbs": 0
+      },
+      "steps": 10000,
+      "meals": [],
+      "variants": {}
     }
   ]
 }
