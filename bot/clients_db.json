@@ -1530,6 +1530,21 @@
       "steps": 10000,
       "meals": [],
       "variants": {}
+    },
+    {
+      "slug": "8603558806",
+      "name": "8603558806",
+      "display_name": "Вельможа",
+      "telegram_id": 8603558806,
+      "daily": {
+        "kcal": 0,
+        "protein": 0,
+        "fat": 0,
+        "carbs": 0
+      },
+      "steps": 10000,
+      "meals": [],
+      "variants": {}
     }
   ]
 }
