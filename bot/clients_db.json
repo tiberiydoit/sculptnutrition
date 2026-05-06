@@ -1516,6 +1516,21 @@
       "steps": 10000,
       "meals": [],
       "variants": {}
+    },
+    {
+      "slug": "ya_zda",
+      "name": "@ya_zda",
+      "display_name": "Yaroslav",
+      "telegram_id": 1025937429,
+      "daily": {
+        "kcal": 0,
+        "protein": 0,
+        "fat": 0,
+        "carbs": 0
+      },
+      "steps": 10000,
+      "meals": [],
+      "variants": {}
     }
   ]
 }
