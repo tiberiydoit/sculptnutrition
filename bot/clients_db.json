@@ -1556,6 +1556,21 @@
       "steps": 10000,
       "meals": [],
       "variants": {}
+    },
+    {
+      "slug": "bdbd0bdbd",
+      "name": "@bdbd0bdbd",
+      "display_name": "bd",
+      "telegram_id": 393141595,
+      "daily": {
+        "kcal": 0,
+        "protein": 0,
+        "fat": 0,
+        "carbs": 0
+      },
+      "steps": 10000,
+      "meals": [],
+      "variants": {}
     }
   ]
 }
