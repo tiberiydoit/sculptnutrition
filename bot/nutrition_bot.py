@@ -1660,9 +1660,31 @@ async def handle_photo(update: Update, ctx: ContextTypes.DEFAULT_TYPE):
 
     photo = update.message.photo[-1]  # найбільший розмір
     file = await ctx.bot.get_file(photo.file_id)
-    filename = f"{mt}_{idx}_{photo.file_unique_id}.jpg"
-    filepath = Path(filename)
-    await file.download_to_drive(filepath)
+    filename = f"photos/{mt}_{idx}_{photo.file_unique_id}.jpg"
+
+    # Завантажити фото в пам'ять і залити в репозиторій
+    import io
+    bio = io.BytesIO()
+    await file.download_to_memory(bio)
+    img_b64 = base64.b64encode(bio.getvalue()).decode()
+
+    if GITHUB_TOKEN:
+        gh_url = f"https://api.github.com/repos/{GITHUB_REPO}/contents/{filename}"
+        gh_headers = {"Authorization": f"token {GITHUB_TOKEN}", "Accept": "application/vnd.github+json"}
+        sha = None
+        try:
+            r = _requests.get(gh_url, headers=gh_headers, timeout=10)
+            if r.status_code == 200:
+                sha = r.json()["sha"]
+        except Exception:
+            pass
+        body = {"message": f"add photo {filename}", "content": img_b64}
+        if sha:
+            body["sha"] = sha
+        try:
+            _requests.put(gh_url, json=body, headers=gh_headers, timeout=30)
+        except Exception as e:
+            logger.warning("Failed to upload photo to GitHub: %s", e)
 
     db = _load_variants()
     db[mt][idx]["photo"] = filename
