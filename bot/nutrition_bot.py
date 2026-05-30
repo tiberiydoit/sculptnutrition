@@ -919,6 +919,7 @@ async def cb_handler(update: Update, ctx: ContextTypes.DEFAULT_TYPE):
         kb = InlineKeyboardMarkup([
             [InlineKeyboardButton("✏️ Рецепт", callback_data=f"vg:editsteps:{mt}:{idx}"),
              InlineKeyboardButton("📝 Нотатка", callback_data=f"vg:editnote:{mt}:{idx}")],
+            [InlineKeyboardButton("📷 Фото", callback_data=f"vg:editphoto:{mt}:{idx}")],
             [InlineKeyboardButton("🗑 Видалити", callback_data=f"vg:del:{mt}:{idx}")],
             [InlineKeyboardButton("← Назад", callback_data=f"vg:type:{mt}")],
         ])
@@ -989,6 +990,16 @@ async def cb_handler(update: Update, ctx: ContextTypes.DEFAULT_TYPE):
         await query.edit_message_text(
             "Введи нотатку до варіанту:\n\n"
             "<i>Щоб прибрати нотатку — напиши: прочистити</i>",
+            parse_mode="HTML",
+        )
+
+    elif data.startswith("vg:editphoto:"):
+        _, _, mt, idx_str = data.split(":", 3)
+        ctx.user_data["vg_edit_mt"]  = mt
+        ctx.user_data["vg_edit_idx"] = int(idx_str)
+        ctx.user_data["vg_state"]    = "askphoto"
+        await query.edit_message_text(
+            "📷 Надішли нове фото для цього рецепту:",
             parse_mode="HTML",
         )
 
