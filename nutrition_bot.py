@@ -1812,5 +1812,19 @@ def main():
     app.run_polling(drop_pending_updates=True)
 
 
+def run_health_server():
+    from http.server import HTTPServer, BaseHTTPRequestHandler
+    class Handler(BaseHTTPRequestHandler):
+        def do_GET(self):
+            self.send_response(200)
+            self.end_headers()
+            self.wfile.write(b"OK")
+        def log_message(self, *args):
+            pass
+    port = int(os.getenv("PORT", 8080))
+    HTTPServer(("0.0.0.0", port), Handler).serve_forever()
+
 if __name__ == "__main__":
+    import threading
+    threading.Thread(target=run_health_server, daemon=True).start()
     main()
