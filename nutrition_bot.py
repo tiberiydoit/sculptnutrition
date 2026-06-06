@@ -1826,5 +1826,8 @@ def run_health_server():
 
 if __name__ == "__main__":
     import threading
-    threading.Thread(target=run_health_server, daemon=True).start()
+    import time
+    t = threading.Thread(target=run_health_server, daemon=True)
+    t.start()
+    time.sleep(1)
     main()
