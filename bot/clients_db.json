@@ -2469,6 +2469,21 @@
           }
         ]
       }
+    },
+    {
+      "slug": "shmatko_s1",
+      "name": "@shmatko_s1",
+      "display_name": "Serhii",
+      "telegram_id": 2146806329,
+      "daily": {
+        "kcal": 0,
+        "protein": 0,
+        "fat": 0,
+        "carbs": 0
+      },
+      "steps": 10000,
+      "meals": [],
+      "variants": {}
     }
   ]
 }
