@@ -2484,6 +2484,21 @@
       "steps": 10000,
       "meals": [],
       "variants": {}
+    },
+    {
+      "slug": "Oleksandr_V99",
+      "name": "@Oleksandr_V99",
+      "display_name": "Oleksandr",
+      "telegram_id": 841834610,
+      "daily": {
+        "kcal": 0,
+        "protein": 0,
+        "fat": 0,
+        "carbs": 0
+      },
+      "steps": 10000,
+      "meals": [],
+      "variants": {}
     }
   ]
 }
