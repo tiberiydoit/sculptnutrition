@@ -2514,6 +2514,21 @@
       "steps": 10000,
       "meals": [],
       "variants": {}
+    },
+    {
+      "slug": "bwdyu7ew",
+      "name": "@bwdyu7ew",
+      "display_name": "„ ^,,",
+      "telegram_id": 841744290,
+      "daily": {
+        "kcal": 0,
+        "protein": 0,
+        "fat": 0,
+        "carbs": 0
+      },
+      "steps": 10000,
+      "meals": [],
+      "variants": {}
     }
   ]
 }
