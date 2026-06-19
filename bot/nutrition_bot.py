@@ -64,6 +64,38 @@ MEAL_EMOJI = {"сніданок": "🌅", "обід": "⚡", "вечеря": "�
     VAR_GLOBAL_PHOTO,      # фото варіанту
 ) = range(20, 25)
 
+LANG_SELECT = 30
+
+# ── Тексти для клієнтів (двома мовами) ───────────────────────────────────────
+
+CLIENT_TEXTS = {
+    "uk": {
+        "choose_lang":    "Оберіть мову / Выберите язык:",
+        "greeting_ready": "Привіт, <b>{name}</b>!\n\nТут твій персональний план харчування від тренера.\nНатисни кнопку нижче щоб відкрити його 👇",
+        "greeting_wait":  "Привіт, <b>{name}</b>! 👋\n\nТвій план харчування ще готується.\nЯк тільки буде готовий — отримаєш повідомлення.",
+        "greeting_noact": "Привіт, <b>{name}</b>!\n\nТвій доступ до плану харчування завершився.\nЗв'яжись з тренером для продовження.",
+        "plan_updated":   "<b>{name}</b>, твій план харчування оновлено!",
+        "btn_plan":       "Мій план",
+        "btn_plan_menu":  "Мій план",
+    },
+    "ru": {
+        "choose_lang":    "Оберіть мову / Выберите язык:",
+        "greeting_ready": "Привет, <b>{name}</b>!\n\nЗдесь твой персональный план питания от тренера.\nНажми кнопку ниже чтобы открыть его 👇",
+        "greeting_wait":  "Привет, <b>{name}</b>! 👋\n\nТвой план питания ещё готовится.\nКак только будет готов — получишь сообщение.",
+        "greeting_noact": "Привет, <b>{name}</b>!\n\nТвой доступ к плану питания закончился.\nСвяжись с тренером для продления.",
+        "plan_updated":   "<b>{name}</b>, твой план питания обновлён!",
+        "btn_plan":       "Мой план",
+        "btn_plan_menu":  "Мой план",
+    },
+}
+
+def _t(client: dict, key: str, **kwargs) -> str:
+    lang = client.get("lang", "uk")
+    if lang not in CLIENT_TEXTS:
+        lang = "uk"
+    text = CLIENT_TEXTS[lang].get(key, CLIENT_TEXTS["uk"][key])
+    return text.format(**kwargs) if kwargs else text
+
 # ── Прийоми за замовчуванням ──────────────────────────────────────────────────
 
 MEAL_DEFAULTS = {
@@ -264,11 +296,11 @@ def _client_summary(c: dict) -> str:
         f"Telegram ID: <code>{c.get('telegram_id') or 'не вказано'}</code>"
     )
 
-async def _set_menu_button(bot, tg_id: int, url: str):
+async def _set_menu_button(bot, tg_id: int, url: str, label: str = "Мій план"):
     try:
         await bot.set_chat_menu_button(
             chat_id=tg_id,
-            menu_button=MenuButtonWebApp(text="Мій план", web_app=WebAppInfo(url=url)),
+            menu_button=MenuButtonWebApp(text=label, web_app=WebAppInfo(url=url)),
         )
     except Exception as e:
         logger.warning("menu button error %s: %s", tg_id, e)
@@ -278,12 +310,13 @@ async def _send_plan(bot, client: dict):
     if not tg_id:
         return False
     url = _build_url(client)
+    btn_label = _t(client, "btn_plan")
     await bot.send_message(
         chat_id=tg_id,
-        text=f"<b>{_display(client)}</b>, твій план харчування оновлено!",
+        text=_t(client, "plan_updated", name=_display(client)),
         parse_mode="HTML",
         reply_markup=InlineKeyboardMarkup([[
-            InlineKeyboardButton("Мій план", web_app=WebAppInfo(url=url))
+            InlineKeyboardButton(btn_label, web_app=WebAppInfo(url=url))
         ]]),
     )
     await _set_menu_button(bot, tg_id, url)
@@ -534,33 +567,46 @@ async def cmd_start(update: Update, ctx: ContextTypes.DEFAULT_TYPE):
             parse_mode="HTML",
         )
 
+    # Якщо мова ще не вибрана — питаємо
+    if not client.get("lang"):
+        ctx.user_data["pending_start_client_slug"] = client["slug"]
+        await update.message.reply_text(
+            "Оберіть мову / Выберите язык:",
+            reply_markup=InlineKeyboardMarkup([[
+                InlineKeyboardButton("🇺🇦 Українська", callback_data="setlang:uk"),
+                InlineKeyboardButton("🇷🇺 Русский",    callback_data="setlang:ru"),
+            ]]),
+        )
+        return
+
+    await _greet_client(update.message, client)
+
+
+async def _greet_client(message, client: dict):
+    """Send the appropriate greeting to a client based on their language and plan status."""
+    user_id = client.get("telegram_id")
+    first_name = client.get("display_name") or _display(client)
     has_access, _ = _access_status(client)
-    first_name = update.effective_user.first_name or _display(client)
 
     if not has_access:
-        await update.message.reply_text(
-            f"Привіт, <b>{first_name}</b>!\n\n"
-            f"Твій доступ до плану харчування завершився.\n"
-            f"Зв'яжись з тренером для продовження.",
+        await message.reply_text(
+            _t(client, "greeting_noact", name=first_name),
             parse_mode="HTML",
         )
     elif client.get("meals"):
         url = _build_url(client)
-        await _set_menu_button(ctx.bot, user_id, url)
-        await update.message.reply_text(
-            f"Привіт, <b>{first_name}</b>!\n\n"
-            f"Тут твій персональний план харчування від тренера.\n"
-            f"Натисни кнопку нижче щоб відкрити його 👇",
+        if user_id:
+            await _set_menu_button(message.get_bot(), user_id, url, label=_t(client, "btn_plan_menu"))
+        await message.reply_text(
+            _t(client, "greeting_ready", name=first_name),
             parse_mode="HTML",
             reply_markup=InlineKeyboardMarkup([[
-                InlineKeyboardButton("Мій план", web_app=WebAppInfo(url=url))
+                InlineKeyboardButton(_t(client, "btn_plan"), web_app=WebAppInfo(url=url))
             ]]),
         )
     else:
-        await update.message.reply_text(
-            f"Привіт, <b>{first_name}</b>! 👋\n\n"
-            f"Твій план харчування ще готується.\n"
-            f"Як тільки буде готовий — отримаєш повідомлення.",
+        await message.reply_text(
+            _t(client, "greeting_wait", name=first_name),
             parse_mode="HTML",
         )
 
@@ -675,10 +721,58 @@ async def cmd_variants_menu(update: Update, ctx: ContextTypes.DEFAULT_TYPE):
 
 async def cb_handler(update: Update, ctx: ContextTypes.DEFAULT_TYPE):
     query = update.callback_query
-    if not query or query.from_user.id != OWNER_ID:
+    if not query:
+        return
+    data = query.data
+
+    # ── Вибір мови клієнтом ───────────────────────────────────────────────────
+    if data.startswith("setlang:"):
+        lang = data[8:]  # "uk" or "ru"
+        if lang not in CLIENT_TEXTS:
+            await query.answer()
+            return
+        user_id = query.from_user.id
+        client  = _get_client_by_tg_id(user_id)
+        if client:
+            client["lang"] = lang
+            _save_client(client)
+        await query.answer()
+        try:
+            await query.message.delete()
+        except Exception:
+            pass
+        # Send greeting using bot directly
+        if client:
+            first_name = client.get("display_name") or _display(client)
+            has_access, _ = _access_status(client)
+            if not has_access:
+                await query.get_bot().send_message(
+                    chat_id=user_id,
+                    text=_t(client, "greeting_noact", name=first_name),
+                    parse_mode="HTML",
+                )
+            elif client.get("meals"):
+                url = _build_url(client)
+                await _set_menu_button(query.get_bot(), user_id, url, label=_t(client, "btn_plan_menu"))
+                await query.get_bot().send_message(
+                    chat_id=user_id,
+                    text=_t(client, "greeting_ready", name=first_name),
+                    parse_mode="HTML",
+                    reply_markup=InlineKeyboardMarkup([[
+                        InlineKeyboardButton(_t(client, "btn_plan"), web_app=WebAppInfo(url=url))
+                    ]]),
+                )
+            else:
+                await query.get_bot().send_message(
+                    chat_id=user_id,
+                    text=_t(client, "greeting_wait", name=first_name),
+                    parse_mode="HTML",
+                )
+        return
+
+    if query.from_user.id != OWNER_ID:
         return
     await query.answer()
-    data = query.data
 
     # ── Перегляд клієнта ──────────────────────────────────────────────────────
     if data.startswith("view:"):
@@ -919,7 +1013,6 @@ async def cb_handler(update: Update, ctx: ContextTypes.DEFAULT_TYPE):
         kb = InlineKeyboardMarkup([
             [InlineKeyboardButton("✏️ Рецепт", callback_data=f"vg:editsteps:{mt}:{idx}"),
              InlineKeyboardButton("📝 Нотатка", callback_data=f"vg:editnote:{mt}:{idx}")],
-            [InlineKeyboardButton("📷 Фото", callback_data=f"vg:editphoto:{mt}:{idx}")],
             [InlineKeyboardButton("🗑 Видалити", callback_data=f"vg:del:{mt}:{idx}")],
             [InlineKeyboardButton("← Назад", callback_data=f"vg:type:{mt}")],
         ])
@@ -990,16 +1083,6 @@ async def cb_handler(update: Update, ctx: ContextTypes.DEFAULT_TYPE):
         await query.edit_message_text(
             "Введи нотатку до варіанту:\n\n"
             "<i>Щоб прибрати нотатку — напиши: прочистити</i>",
-            parse_mode="HTML",
-        )
-
-    elif data.startswith("vg:editphoto:"):
-        _, _, mt, idx_str = data.split(":", 3)
-        ctx.user_data["vg_edit_mt"]  = mt
-        ctx.user_data["vg_edit_idx"] = int(idx_str)
-        ctx.user_data["vg_state"]    = "askphoto"
-        await query.edit_message_text(
-            "📷 Надішли нове фото для цього рецепту:",
             parse_mode="HTML",
         )
 
@@ -1671,31 +1754,9 @@ async def handle_photo(update: Update, ctx: ContextTypes.DEFAULT_TYPE):
 
     photo = update.message.photo[-1]  # найбільший розмір
     file = await ctx.bot.get_file(photo.file_id)
-    filename = f"photos/{mt}_{idx}_{photo.file_unique_id}.jpg"
-
-    # Завантажити фото в пам'ять і залити в репозиторій
-    import io
-    bio = io.BytesIO()
-    await file.download_to_memory(bio)
-    img_b64 = base64.b64encode(bio.getvalue()).decode()
-
-    if GITHUB_TOKEN:
-        gh_url = f"https://api.github.com/repos/{GITHUB_REPO}/contents/{filename}"
-        gh_headers = {"Authorization": f"token {GITHUB_TOKEN}", "Accept": "application/vnd.github+json"}
-        sha = None
-        try:
-            r = _requests.get(gh_url, headers=gh_headers, timeout=10)
-            if r.status_code == 200:
-                sha = r.json()["sha"]
-        except Exception:
-            pass
-        body = {"message": f"add photo {filename}", "content": img_b64}
-        if sha:
-            body["sha"] = sha
-        try:
-            _requests.put(gh_url, json=body, headers=gh_headers, timeout=30)
-        except Exception as e:
-            logger.warning("Failed to upload photo to GitHub: %s", e)
+    filename = f"{mt}_{idx}_{photo.file_unique_id}.jpg"
+    filepath = Path(filename)
+    await file.download_to_drive(filepath)
 
     db = _load_variants()
     db[mt][idx]["photo"] = filename
