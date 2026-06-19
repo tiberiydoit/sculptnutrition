@@ -1766,6 +1766,8 @@ function buildVariantHTML(v) {
     ? `<img src="${photo}" alt="${v.name}" loading="lazy" onerror="this.parentElement.innerHTML='<div class=\\'variant-photo-grad\\'  style=\\'background:#1c2330\\'>🍽️</div>'">`
     : `<div class="variant-photo-grad" style="background:${v.gradient || '#1c2330'}"><span style="filter:drop-shadow(0 4px 10px rgba(0,0,0,0.4))">${v.emoji || '🍽️'}</span></div>`;
 
+  const t = i18n[currentLang] || i18n.uk;
+
   // Ingredients can be objects {name,p,f,c,kcal} or plain strings
   let ingRows = '';
   const hasStructured = v.ingredients && v.ingredients.length && typeof v.ingredients[0] === 'object';
@@ -1798,7 +1800,6 @@ function buildVariantHTML(v) {
       </tr>
     </tfoot>` : '';
 
-  const t = i18n[currentLang] || i18n.uk;
   const thead = hasStructured
     ? `<thead><tr><th>${t.lbl_product}</th><th>Б</th><th>Ж</th><th>В</th><th>ккал</th></tr></thead>`
     : `<thead><tr><th colspan="5">${t.lbl_ingredients}</th></tr></thead>`;
