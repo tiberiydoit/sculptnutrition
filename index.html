@@ -1342,7 +1342,7 @@ const i18n = {
     lbl_ingredients: 'Інгредієнти',
     lbl_recipe: 'Рецепт приготування',
     lbl_no_variants: 'Варіанти ще не додані.',
-    lbl_tap_view: 'Натисни щоб переглянути',
+    lbl_tap_view: 'натисни щоб переглянути',
     lbl_variant_count_1: 'варіант',
     lbl_variant_count_few: 'варіанти',
     lbl_variant_count_many: 'варіантів',
@@ -1417,7 +1417,7 @@ const i18n = {
     lbl_ingredients: 'Ингредиенты',
     lbl_recipe: 'Рецепт приготовления',
     lbl_no_variants: 'Варианты ещё не добавлены.',
-    lbl_tap_view: 'Нажми чтобы посмотреть',
+    lbl_tap_view: 'нажми чтобы посмотреть',
     lbl_variant_count_1: 'вариант',
     lbl_variant_count_few: 'варианта',
     lbl_variant_count_many: 'вариантов',
@@ -1465,11 +1465,13 @@ function setLang(lang) {
   // update meals data (names, ingredient names, steps)
   applyMealLang(lang);
 
-  // update visible meal card macros labels (Б/Ж/В → Б/Ж/У in ru stay same letters; ккал stays)
-  // refresh variant hint counts on cards
-  document.querySelectorAll('.meal-card').forEach(card => {
-    const hintEl = card.querySelector('.tap-hint-text');
-    if (!hintEl || hintEl.hasAttribute('data-i18n')) return; // handled by data-i18n
+  // refresh all dynamic variant hint texts on meal cards
+  document.querySelectorAll('.meal-card .tap-hint-text').forEach(el => {
+    const cnt = parseInt(el.getAttribute('data-variant-count') || '0', 10);
+    // static cards (no data-variant-count) are handled by data-i18n above
+    if (el.hasAttribute('data-variant-count')) {
+      _updateHintText(el, cnt);
+    }
   });
 
   // re-render modal if open
@@ -1481,6 +1483,13 @@ function setLang(lang) {
 
 let _clientName = '';
 let _openModalKey = null;
+
+function _updateHintText(el, cnt) {
+  const tLang = i18n[currentLang] || i18n.uk;
+  el.textContent = cnt > 0
+    ? `${cnt} ${cnt === 1 ? tLang.lbl_variant_count_1 : cnt < 5 ? tLang.lbl_variant_count_few : tLang.lbl_variant_count_many} · ${tLang.lbl_tap_view}`
+    : tLang.lbl_tap_view;
+}
 
 const meals = {
   breakfast: {
@@ -2278,7 +2287,7 @@ function applyMealLang(lang) {
           </div>
           <div class="tap-hint">
             <div class="tap-arrow">→</div>
-            <span class="tap-hint-text">Натисни щоб переглянути</span>
+            <span class="tap-hint-text" data-i18n-dynamic="hint"></span>
           </div>`;
         grid.appendChild(card);
       }
@@ -2294,11 +2303,8 @@ function applyMealLang(lang) {
       const hintEl = card.querySelector('.tap-hint-text') || card.querySelector('.tap-hint');
       if (hintEl) {
         const cnt = meals[key].variants.length;
-        const tLang = i18n[currentLang] || i18n.uk;
-        hintEl.textContent = cnt
-          ? `${cnt} ${cnt === 1 ? tLang.lbl_variant_count_1 : cnt < 5 ? tLang.lbl_variant_count_few : tLang.lbl_variant_count_many} · ${currentLang === 'uk' ? 'натисни щоб переглянути' : 'нажми чтобы посмотреть'}`
-          : tLang.lbl_tap_view;
-        hintEl.removeAttribute('data-i18n'); // dynamic content, no static i18n attr
+        hintEl.setAttribute('data-variant-count', cnt);
+        _updateHintText(hintEl, cnt);
       }
     });
   }
