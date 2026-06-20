@@ -2215,6 +2215,30 @@ function applyMealLang(lang) {
       }
     });
   }
+
+  // ── Principles: adapt based on meal count ────────────────────────────────
+  const mealCount = (client.meals || []).length;
+  if (mealCount >= 4) {
+    document.querySelectorAll('.principle-card').forEach(card => {
+      const h4 = card.querySelector('h4');
+      if (!h4) return;
+      const p = card.querySelector('p');
+      if (/Три приёма/.test(h4.textContent)) {
+        h4.textContent = 'Четыре приёма — структура';
+        if (p) p.textContent = 'Первые три приёма: углеводы + белок. Последний приём — только белок (и простые углеводы по желанию). Всегда придерживайся этой структуры.';
+      }
+      if (/без углеводов/.test(h4.textContent)) {
+        card.style.display = 'none';
+      }
+    });
+    let num = 1;
+    document.querySelectorAll('.principle-card').forEach(card => {
+      if (card.style.display === 'none') return;
+      const numEl = card.querySelector('.principle-num');
+      if (numEl) numEl.textContent = String(num++).padStart(2, '0');
+    });
+  }
+
   } // end applyClient
 
   // Apply Russian language to all static UI elements on load
