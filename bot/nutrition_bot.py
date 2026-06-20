@@ -2325,7 +2325,15 @@ def main():
         pass
     time.sleep(15)
 
-    app = Application.builder().token(BOT_TOKEN).build()
+    app = (
+        Application.builder()
+        .token(BOT_TOKEN)
+        .read_timeout(30)
+        .write_timeout(30)
+        .connect_timeout(30)
+        .pool_timeout(30)
+        .build()
+    )
     app.add_error_handler(_error_handler)
 
     nc_conv = ConversationHandler(
