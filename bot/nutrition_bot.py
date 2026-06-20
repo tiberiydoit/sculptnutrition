@@ -119,6 +119,24 @@ MEAL_DEFAULTS = {
     ],
 }
 
+# Переклад назв прийомів їжі для російської мови
+MEAL_NAME_RU = {
+    "Сніданок":  "Завтрак",
+    "Обід":      "Обед",
+    "Обід №1":   "Обед №1",
+    "Обід №2":   "Обед №2",
+    "Обід №3":   "Обед №3",
+    "Вечеря":    "Ужин",
+    "Перекус 1": "Перекус 1",
+    "Перекус 2": "Перекус 2",
+    "Перекус":   "Перекус",
+}
+
+def _translate_meal_name(name: str, lang: str) -> str:
+    if lang == "ru":
+        return MEAL_NAME_RU.get(name, name)
+    return name
+
 # ── Клавіатура тренера ────────────────────────────────────────────────────────
 
 ADMIN_KB = ReplyKeyboardMarkup(
@@ -250,8 +268,14 @@ def _push_client_data(client: dict) -> bool:
     return _gh_write(f"data/{slug}.json", client, f"update {slug}")
 
 def _build_url(client: dict) -> str:
-    # Compact client without variants — variants are fetched separately via GitHub
+    lang = client.get("lang", "uk")
     slim = {k: v for k, v in client.items() if k != "variants"}
+    # translate meal names for Russian clients
+    if lang == "ru" and slim.get("meals"):
+        slim["meals"] = [
+            {**m, "name": _translate_meal_name(m["name"], lang)}
+            for m in slim["meals"]
+        ]
     d = base64.urlsafe_b64encode(
         json.dumps(slim, ensure_ascii=False).encode()
     ).decode()
