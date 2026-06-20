@@ -855,10 +855,11 @@ async def cb_handler(update: Update, ctx: ContextTypes.DEFAULT_TYPE):
             await query.edit_message_text("Клієнта не знайдено.")
             return
         kb = InlineKeyboardMarkup([
-            [InlineKeyboardButton("📊 КБЖВ",          callback_data=f"ef:{slug}:daily")],
-            [InlineKeyboardButton("🍽 Порції прийомів", callback_data=f"ef:{slug}:meals")],
-            [InlineKeyboardButton("👟 Кроки",           callback_data=f"ef:{slug}:steps")],
-            [InlineKeyboardButton("← Назад",             callback_data=f"view:{slug}")],
+            [InlineKeyboardButton("📊 КБЖВ",            callback_data=f"ef:{slug}:daily")],
+            [InlineKeyboardButton("🍽 Порції прийомів",  callback_data=f"ef:{slug}:meals")],
+            [InlineKeyboardButton("🏷 Назви страв",      callback_data=f"ef:{slug}:varnames")],
+            [InlineKeyboardButton("👟 Кроки",             callback_data=f"ef:{slug}:steps")],
+            [InlineKeyboardButton("← Назад",              callback_data=f"view:{slug}")],
         ])
         await query.edit_message_text(
             _client_summary(client) + "\n\n<i>Що змінюємо?</i>",
@@ -1035,7 +1036,8 @@ async def cb_handler(update: Update, ctx: ContextTypes.DEFAULT_TYPE):
             f"{steps_text}{note_text}"
         )
         kb = InlineKeyboardMarkup([
-            [InlineKeyboardButton("✏️ Рецепт", callback_data=f"vg:editsteps:{mt}:{idx}"),
+            [InlineKeyboardButton("🏷 Назва",   callback_data=f"vg:editname:{mt}:{idx}"),
+             InlineKeyboardButton("✏️ Рецепт", callback_data=f"vg:editsteps:{mt}:{idx}"),
              InlineKeyboardButton("📝 Нотатка", callback_data=f"vg:editnote:{mt}:{idx}")],
             [InlineKeyboardButton("🗑 Видалити", callback_data=f"vg:del:{mt}:{idx}")],
             [InlineKeyboardButton("← Назад", callback_data=f"vg:type:{mt}")],
@@ -1096,6 +1098,18 @@ async def cb_handler(update: Update, ctx: ContextTypes.DEFAULT_TYPE):
         await query.edit_message_text(
             "Введи кроки рецепту — кожен з нового рядка:\n\n"
             "<i>Якщо хочеш очистити рецепт — напиши: прочистити</i>",
+            parse_mode="HTML",
+        )
+
+    elif data.startswith("vg:editname:"):
+        _, _, mt, idx_str = data.split(":", 3)
+        ctx.user_data["vg_edit_mt"]  = mt
+        ctx.user_data["vg_edit_idx"] = int(idx_str)
+        ctx.user_data["vg_state"]    = "editname"
+        variants = _get_global_variants(mt)
+        cur_name = variants[int(idx_str)]["name"] if int(idx_str) < len(variants) else ""
+        await query.edit_message_text(
+            f"Поточна назва:\n<b>{cur_name}</b>\n\nВведи нову назву:",
             parse_mode="HTML",
         )
 
@@ -1250,6 +1264,20 @@ async def handle_text(update: Update, ctx: ContextTypes.DEFAULT_TYPE):
             reply_markup=InlineKeyboardMarkup([[
                 InlineKeyboardButton("⏭ Без фото", callback_data=f"vg:asksteps:{mt}:{last_idx}"),
             ]]),
+        )
+
+    # ── Редагування назви варіанту ────────────────────────────────────────────
+    elif state == "editname":
+        mt  = ctx.user_data.get("vg_edit_mt")
+        idx = ctx.user_data.get("vg_edit_idx")
+        db  = _load_variants()
+        old_name = db[mt][idx]["name"]
+        db[mt][idx]["name"] = text.strip()
+        _save_variants(db)
+        ctx.user_data.pop("vg_state", None)
+        await update.message.reply_text(
+            f"✅ Назву змінено:\n<s>{old_name}</s> → <b>{text.strip()}</b>",
+            parse_mode="HTML",
         )
 
     # ── Редагування кроків рецепту ────────────────────────────────────────────
