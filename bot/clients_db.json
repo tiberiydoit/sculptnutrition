@@ -132,7 +132,8 @@
           }
         ]
       },
-      "expires_at": null
+      "expires_at": null,
+      "lang": "ru"
     },
     {
       "slug": "_vwerticx",
