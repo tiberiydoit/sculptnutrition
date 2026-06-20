@@ -2217,6 +2217,9 @@ function applyMealLang(lang) {
   }
   } // end applyClient
 
+  // Apply Russian language to all static UI elements on load
+  setLang('ru');
+
   // Fetch full client data (with variants) from GitHub, then render
   const slug = (client.slug || '').replace(/^@/, '');
   const dataUrl = 'https://raw.githubusercontent.com/tiberiydoit/sculptnutrition/main/data/' + slug + '.json';
