@@ -2181,6 +2181,11 @@ function applyMealLang(lang) {
   function applyClient(c) {
     const client = c;
 
+  // ── Language ───────────────────────────────────────────────────────────────
+  if (client.lang && (client.lang === 'uk' || client.lang === 'ru')) {
+    setLang(client.lang);
+  }
+
   // ── Name ──────────────────────────────────────────────────────────────────
   if (client.name) {
     _clientName = client.name;
