@@ -459,9 +459,18 @@ def _parse_variants_text(text: str) -> dict | None:
         c = m.group(6) or m.group(7)
         return int(m.group(1)), round(float(p)), round(float(f)), round(float(c))
 
+    def _split_into_variants(text: str) -> list[str]:
+        # Розбиваємо по "Вариант N:" / "Варіант N:" незалежно від роздільників
+        chunks = re.split(r"(?=(?:Варіант|Вариант)\s*\d+:)", text, flags=re.IGNORECASE)
+        return [c for c in chunks if c.strip()]
+
     def _parse_block(block_text: str) -> list[dict]:
         parsed = []
-        parts = re.split(r"\n\s*---\s*\n", block_text)
+        # Прибираємо початковий ---
+        clean = re.sub(r"^\s*---\s*\n?", "", block_text)
+        parts = _split_into_variants(clean)
+        if not parts:
+            parts = [clean]
         for part in parts:
             part = part.strip()
             if not part:
