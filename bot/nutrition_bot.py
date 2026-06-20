@@ -350,11 +350,11 @@ async def _send_plan(bot, client: dict):
 
 def _parse_ration_text(text: str) -> dict | None:
     meals = []
-    header_match = re.search(r"(\d)\s*прийом", text, re.IGNORECASE)
+    header_match = re.search(r"(\d)\s*(?:прийом|приём|прием)", text, re.IGNORECASE)
     meals_count = int(header_match.group(1)) if header_match else None
 
     meal_pattern = re.compile(
-        r"(\d)-[а-яА-ЯіІїЇєЄ]+:\s*(\d+)\s*ккал\s*\|\s*([\d.]+)\s*Б\s*/\s*([\d.]+)\s*Ж\s*/\s*([\d.]+)\s*В",
+        r"(\d)-[а-яА-ЯіІїЇєЄёЁ]+:\s*(\d+)\s*ккал\s*\|\s*([\d.]+)\s*Б\s*/\s*([\d.]+)\s*Ж\s*/\s*([\d.]+)\s*[ВУ]",
         re.IGNORECASE,
     )
     for m in meal_pattern.finditer(text):
@@ -382,7 +382,7 @@ def _parse_ration_text(text: str) -> dict | None:
                               "kcal": md["kcal"], "p": md["p"], "f": md["f"], "c": md["c"]})
 
     summary = re.search(
-        r"Калорії:\s*(\d+)\s*ккал\s*\|\s*Б:\s*([\d.]+)\s*г\s*\|\s*Ж:\s*([\d.]+)\s*г\s*\|\s*В:\s*([\d.]+)\s*г",
+        r"(?:Калорії|Калории):\s*(\d+)\s*ккал\s*\|\s*Б:\s*([\d.]+)\s*г\s*\|\s*Ж:\s*([\d.]+)\s*г\s*\|\s*[ВУ]:\s*([\d.]+)\s*г",
         text, re.IGNORECASE,
     )
     if summary:
@@ -425,7 +425,7 @@ def _parse_variants_text(text: str) -> dict | None:
     meals_order = []
 
     meal_type_pattern = re.compile(
-        r"^(СНІДАНОК|ОБІД[^\n]*|ВЕЧЕРЯ|ПЕРЕКУС[^\n]*)",
+        r"^(СНІДАНОК|ОБІД[^\n]*|ВЕЧЕРЯ|ПЕРЕКУС[^\n]*|ЗАВТРАК|ОБЕД[^\n]*|УЖИН|ПЕРЕКУС[^\n]*)",
         re.IGNORECASE | re.MULTILINE,
     )
 
@@ -435,10 +435,10 @@ def _parse_variants_text(text: str) -> dict | None:
 
     def _normalize_key(raw: str) -> str:
         r = raw.strip().lower()
-        if r.startswith("сніданок"): return "сніданок"
-        if r.startswith("обід"):     return "обід"
-        if r.startswith("вечеря"):   return "вечеря"
-        if r.startswith("перекус"):  return "перекус"
+        if r.startswith("сніданок") or r.startswith("завтрак"): return "сніданок"
+        if r.startswith("обід")     or r.startswith("обед"):     return "обід"
+        if r.startswith("вечеря")   or r.startswith("ужин"):     return "вечеря"
+        if r.startswith("перекус"):                               return "перекус"
         return r
 
     def _label(raw: str) -> str:
@@ -446,7 +446,7 @@ def _parse_variants_text(text: str) -> dict | None:
         return raw.strip().capitalize()
 
     totals_pattern = re.compile(
-        r"Разом:\s*(\d+)\s*ккал\s*\|\s*([\d.]+)\s*Б\s*/\s*([\d.]+)\s*Ж\s*/\s*([\d.]+)\s*В",
+        r"(?:Разом|Итого):\s*(\d+)\s*ккал\s*\|\s*([\d.]+)\s*Б\s*/\s*([\d.]+)\s*Ж\s*/\s*([\d.]+)\s*[ВУ]",
         re.IGNORECASE,
     )
 
@@ -461,7 +461,7 @@ def _parse_variants_text(text: str) -> dict | None:
             if not lines:
                 continue
             name_line = lines[0]
-            name_match = re.match(r"^Варіант\s*\d+:\s*(.+)", name_line, re.IGNORECASE)
+            name_match = re.match(r"^(?:Варіант|Вариант)\s*\d+:\s*(.+)", name_line, re.IGNORECASE)
             name = name_match.group(1).strip() if name_match else name_line
             totals_match = totals_pattern.search(part)
             if not totals_match:
@@ -1390,17 +1390,17 @@ async def handle_text(update: Update, ctx: ContextTypes.DEFAULT_TYPE):
 
 def _parse_single_variant(text: str) -> dict | None:
     totals = re.search(
-        r"Разом:\s*(\d+)\s*ккал\s*\|\s*([\d.]+)\s*Б\s*/\s*([\d.]+)\s*Ж\s*/\s*([\d.]+)\s*В",
+        r"(?:Разом|Итого):\s*(\d+)\s*ккал\s*\|\s*([\d.]+)\s*Б\s*/\s*([\d.]+)\s*Ж\s*/\s*([\d.]+)\s*[ВУ]",
         text, re.IGNORECASE,
     )
     if not totals:
         return None
     lines = [l.strip() for l in text.splitlines() if l.strip()]
-    name_match = re.match(r"^Варіант\s*\d+:\s*(.+)", lines[0], re.IGNORECASE)
+    name_match = re.match(r"^(?:Варіант|Вариант)\s*\d+:\s*(.+)", lines[0], re.IGNORECASE)
     name = name_match.group(1).strip() if name_match else lines[0]
     totals_line_idx = next(
         (i for i, l in enumerate(lines)
-         if re.search(r"Разом:", l, re.IGNORECASE)), len(lines)
+         if re.search(r"(?:Разом|Итого):", l, re.IGNORECASE)), len(lines)
     )
     return {
         "name":        name,
