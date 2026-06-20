@@ -2323,7 +2323,7 @@ def main():
         )
     except Exception:
         pass
-    time.sleep(5)
+    time.sleep(15)
 
     app = Application.builder().token(BOT_TOKEN).build()
     app.add_error_handler(_error_handler)
