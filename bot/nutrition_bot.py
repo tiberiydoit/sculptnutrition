@@ -446,9 +446,18 @@ def _parse_variants_text(text: str) -> dict | None:
         return raw.strip().capitalize()
 
     totals_pattern = re.compile(
-        r"(?:Разом|Итого):\s*(\d+)\s*ккал\s*\|\s*([\d.]+)\s*Б\s*/\s*([\d.]+)\s*Ж\s*/\s*([\d.]+)\s*[ВУ]",
+        r"(?:Разом|Итого):\s*(\d+)\s*ккал\s*\|"
+        r"\s*(?:Б\s*([\d.]+)г?|([\d.]+)\s*Б)\s*/"
+        r"\s*(?:Ж\s*([\d.]+)г?|([\d.]+)\s*Ж)\s*/"
+        r"\s*(?:[ВУ]\s*([\d.]+)г?|([\d.]+)\s*[ВУ])",
         re.IGNORECASE,
     )
+
+    def _totals_parse(m):
+        p = m.group(2) or m.group(3)
+        f = m.group(4) or m.group(5)
+        c = m.group(6) or m.group(7)
+        return int(m.group(1)), round(float(p)), round(float(f)), round(float(c))
 
     def _parse_block(block_text: str) -> list[dict]:
         parsed = []
@@ -466,10 +475,7 @@ def _parse_variants_text(text: str) -> dict | None:
             totals_match = totals_pattern.search(part)
             if not totals_match:
                 continue
-            kcal = int(totals_match.group(1))
-            p    = round(float(totals_match.group(2)))
-            f    = round(float(totals_match.group(3)))
-            c    = round(float(totals_match.group(4)))
+            kcal, p, f, c = _totals_parse(totals_match)
             totals_line_idx = next(
                 (i for i, l in enumerate(lines) if totals_pattern.search(l)), len(lines)
             )
@@ -517,7 +523,7 @@ def _parse_variants_text(text: str) -> dict | None:
     # Парсимо ПІДСУМОК якщо є
     daily = None
     summary = re.search(
-        r"ПІДСУМОК.*?Калорії:\s*(\d+)\s*ккал\s*\|\s*Б:\s*([\d.]+)\s*г\s*\|\s*Ж:\s*([\d.]+)\s*г\s*\|\s*В:\s*([\d.]+)\s*г",
+        r"(?:ПІДСУМОК|ИТОГО)[^\n]*\n.*?(?:Калорії|Калории):\s*(\d+)\s*ккал\s*\|\s*Б:\s*([\d.]+)\s*г\s*\|\s*Ж:\s*([\d.]+)\s*г\s*\|\s*[ВУ]:\s*([\d.]+)\s*г",
         text, re.IGNORECASE | re.DOTALL,
     )
     if summary:
@@ -1416,11 +1422,22 @@ async def handle_text(update: Update, ctx: ContextTypes.DEFAULT_TYPE):
         await _handle_edit_input(update, ctx)
 
 
+_TOTALS_RE = re.compile(
+    r"(?:Разом|Итого):\s*(\d+)\s*ккал\s*\|"
+    r"\s*(?:Б\s*([\d.]+)г?|([\d.]+)\s*Б)\s*/"
+    r"\s*(?:Ж\s*([\d.]+)г?|([\d.]+)\s*Ж)\s*/"
+    r"\s*(?:[ВУ]\s*([\d.]+)г?|([\d.]+)\s*[ВУ])",
+    re.IGNORECASE,
+)
+
+def _totals_parse_re(m) -> tuple:
+    p = m.group(2) or m.group(3)
+    f = m.group(4) or m.group(5)
+    c = m.group(6) or m.group(7)
+    return int(m.group(1)), round(float(p)), round(float(f)), round(float(c))
+
 def _parse_single_variant(text: str) -> dict | None:
-    totals = re.search(
-        r"(?:Разом|Итого):\s*(\d+)\s*ккал\s*\|\s*([\d.]+)\s*Б\s*/\s*([\d.]+)\s*Ж\s*/\s*([\d.]+)\s*[ВУ]",
-        text, re.IGNORECASE,
-    )
+    totals = _TOTALS_RE.search(text)
     if not totals:
         return None
     lines = [l.strip() for l in text.splitlines() if l.strip()]
@@ -1430,13 +1447,14 @@ def _parse_single_variant(text: str) -> dict | None:
         (i for i, l in enumerate(lines)
          if re.search(r"(?:Разом|Итого):", l, re.IGNORECASE)), len(lines)
     )
+    kcal, p, f, c = _totals_parse_re(totals)
     return {
         "name":        name,
         "ingredients": lines[1:totals_line_idx],
-        "kcal":        int(totals.group(1)),
-        "p":           round(float(totals.group(2))),
-        "f":           round(float(totals.group(3))),
-        "c":           round(float(totals.group(4))),
+        "kcal":        kcal,
+        "p":           p,
+        "f":           f,
+        "c":           c,
         "steps":       [],
         "note":        None,
     }
