@@ -69,8 +69,8 @@ LANG_SELECT = 30
 # Smart wizard — автоматичний розрахунок КБЖВ + підбір страв
 (
     SM_NAME, SM_TG_ID, SM_SEX, SM_AGE, SM_WEIGHT, SM_HEIGHT,
-    SM_ACTIVITY, SM_GOAL, SM_MEALS_COUNT, SM_CONFIRM, SM_STEPS,
-) = range(40, 51)
+    SM_ACTIVITY, SM_GOAL, SM_TARGET_WEIGHT, SM_MEALS_COUNT, SM_CONFIRM, SM_STEPS,
+) = range(40, 52)
 
 # Покрокове додавання страви в базу
 (
@@ -1652,33 +1652,75 @@ async def nc_cancel(update: Update, ctx: ContextTypes.DEFAULT_TYPE):
 # ── Розрахунок КБЖВ (формула Міффліна-Сан Жеора) ────────────────────────────
 
 ACTIVITY_FACTORS = {
-    "1": ("Сидячий (офіс, мало руху)",         1.2),
-    "2": ("Легка активність (1-3 рази/тиждень)", 1.375),
-    "3": ("Помірна (3-5 разів/тиждень)",         1.55),
-    "4": ("Висока (6-7 разів/тиждень)",          1.725),
-    "5": ("Дуже висока (спортсмен, 2 рази/день)",1.9),
+    "1": ("Сидяча робота, мінімум руху",           1.3),
+    "2": ("Середня активність / ~10 000 кроків",   1.4),
 }
 
 GOAL_ADJUSTMENTS = {
-    "scheme": ("Схуднення",   -300),
-    "keep":   ("Підтримка",      0),
-    "gain":   ("Набір маси",  +300),
+    "scheme_300": ("Схуднення (дефіцит 300 ккал)",  -300),
+    "scheme_500": ("Схуднення (дефіцит 500 ккал)",  -500),
+    "keep":       ("Підтримка",                         0),
+    "gain":       ("Набір маси (+300 ккал)",         +300),
+}
+
+# База продуктів (на 100г): ккал, білок, жир, вуглеводи
+FOOD_DB = {
+    "Вівсяна крупа":        (340, 12, 6,    60),
+    "Рис (сухий)":          (340,  7, 0.7,  76),
+    "Гречка (суха)":        (330, 12, 3,    62),
+    "Макарони (сухі)":      (344, 12, 1.5,  71),
+    "Хліб цільнозерновий":  (230,  8, 2,    45),
+    "Картопля заморожена":  (125,  2, 3,    22),
+    "Банан":                ( 90, 1.5, 0.2, 21),
+    "Куряче філе":          (110, 23, 1.5,   0),
+    "Індичий фарш 7%":      (140, 19, 7,     0),
+    "Тунець у власному соку":(100, 22, 1,    0),
+    "Лосось слабосолоний":  (200, 20, 13,    0),
+    "Яловичина вирізка":    (120, 22, 3.5,   0),
+    "Бекон":                (500, 15, 45,  0.5),
+    "Яйце ціле (1шт ~55г)": ( 70,  6, 5,   0.5),
+    "Яєчний білок (1шт)":   ( 17, 3.5, 0,  0.3),
+    "Творог 5%":            (120, 16, 5,     3),
+    "Творог 0%":            ( 70, 16, 0.2,  3.3),
+    "Грецький йогурт 2%":   ( 60,  9, 2,     4),
+    "Грецький йогурт 0%":   ( 50, 10, 0,   3.5),
+    "Молоко 1.5%":          ( 45,  3, 1.5,  4.7),
+    "Протеїн 75%":          (380, 75, 6,     8),
+    "Арахісова паста":      (600, 24, 50,   14),
+    "Авокадо":              (160,  2, 15,    6),
+    "Творожний сир":        (230,  6, 21,    4),
+    "Оливкова олія":        (900,  0, 100,   0),
+    "Мед / Джем":           (310, 0.5, 0,   75),
 }
 
 def _calc_kbzv(sex: str, age: int, weight: float, height: float,
-               activity: str, goal: str) -> dict:
+               activity: str, goal: str, target_weight: float = None) -> dict:
+    # BMR — формула Міффліна-Сан Жеора
     if sex == "m":
         bmr = 10 * weight + 6.25 * height - 5 * age + 5
     else:
         bmr = 10 * weight + 6.25 * height - 5 * age - 161
+
     factor = ACTIVITY_FACTORS[activity][1]
     tdee   = bmr * factor
     adj    = GOAL_ADJUSTMENTS[goal][1]
     kcal   = round(tdee + adj)
-    # Макроси: білок 30%, жир 25%, вуглеводи 45%
-    protein = round(kcal * 0.30 / 4)
-    fat     = round(kcal * 0.25 / 9)
-    carbs   = round(kcal * 0.45 / 4)
+
+    # Білок: 2г на кг цільової/сухої маси (або поточної якщо не вказана)
+    ref_weight = target_weight if target_weight else weight
+    protein = round(ref_weight * 2)
+
+    # Жир: 1г на кг ваги (мінімум 60г, максимум 80г для сушки)
+    if "scheme" in goal:
+        fat = max(60, min(80, round(weight * 1)))
+    else:
+        fat = round(weight * 1)
+
+    # Вуглеводи: залишок
+    carbs = round((kcal - protein * 4 - fat * 9) / 4)
+    if carbs < 0:
+        carbs = 0
+
     return {"kcal": kcal, "protein": protein, "fat": fat, "carbs": carbs}
 
 def _distribute_meals(daily: dict, meals_count: int) -> list[dict]:
@@ -1794,9 +1836,10 @@ async def sm_activity_cb(update: Update, ctx: ContextTypes.DEFAULT_TYPE):
     await query.answer()
     ctx.user_data["activity"] = query.data.split(":")[2]
     rows = [
-        [InlineKeyboardButton("📉 Схуднення (-300 ккал)",  callback_data="sm:goal:scheme")],
-        [InlineKeyboardButton("⚖️ Підтримка (0)",          callback_data="sm:goal:keep")],
-        [InlineKeyboardButton("📈 Набір маси (+300 ккал)", callback_data="sm:goal:gain")],
+        [InlineKeyboardButton("📉 Схуднення -300 ккал",  callback_data="sm:goal:scheme_300")],
+        [InlineKeyboardButton("📉 Схуднення -500 ккал",  callback_data="sm:goal:scheme_500")],
+        [InlineKeyboardButton("⚖️ Підтримка",             callback_data="sm:goal:keep")],
+        [InlineKeyboardButton("📈 Набір маси +300 ккал",  callback_data="sm:goal:gain")],
     ]
     await query.edit_message_text("Крок 8: Ціль клієнта:", reply_markup=InlineKeyboardMarkup(rows))
     return SM_GOAL
@@ -1805,8 +1848,27 @@ async def sm_goal_cb(update: Update, ctx: ContextTypes.DEFAULT_TYPE):
     query = update.callback_query
     await query.answer()
     ctx.user_data["goal"] = query.data.split(":")[2]
+    if "scheme" in ctx.user_data["goal"]:
+        await query.edit_message_text(
+            "Крок 9: Цільова вага клієнта (кг) — для розрахунку білка.\n"
+            "<i>Введи 0 якщо рахувати від поточної ваги</i>",
+            parse_mode="HTML",
+        )
+        return SM_TARGET_WEIGHT
+    else:
+        ctx.user_data["target_weight"] = None
+        rows = [[InlineKeyboardButton(f"{n} прийоми", callback_data=f"sm:meals:{n}") for n in (3, 4, 5)]]
+        await query.edit_message_text("Крок 9: Кількість прийомів їжі:", reply_markup=InlineKeyboardMarkup(rows))
+        return SM_MEALS_COUNT
+
+async def sm_target_weight(update: Update, ctx: ContextTypes.DEFAULT_TYPE):
+    try:
+        tw = float(update.message.text.strip().replace(",", "."))
+        ctx.user_data["target_weight"] = tw if tw > 0 else None
+    except ValueError:
+        ctx.user_data["target_weight"] = None
     rows = [[InlineKeyboardButton(f"{n} прийоми", callback_data=f"sm:meals:{n}") for n in (3, 4, 5)]]
-    await query.edit_message_text("Крок 9: Кількість прийомів їжі:", reply_markup=InlineKeyboardMarkup(rows))
+    await update.message.reply_text("Крок 10: Кількість прийомів їжі:", reply_markup=InlineKeyboardMarkup(rows))
     return SM_MEALS_COUNT
 
 async def sm_meals_cb(update: Update, ctx: ContextTypes.DEFAULT_TYPE):
@@ -1815,7 +1877,8 @@ async def sm_meals_cb(update: Update, ctx: ContextTypes.DEFAULT_TYPE):
     ctx.user_data["meals_count"] = int(query.data.split(":")[2])
 
     d    = ctx.user_data
-    calc = _calc_kbzv(d["sex"], d["age"], d["weight"], d["height"], d["activity"], d["goal"])
+    calc = _calc_kbzv(d["sex"], d["age"], d["weight"], d["height"],
+                      d["activity"], d["goal"], d.get("target_weight"))
     ctx.user_data["calc"] = calc
 
     goal_label     = GOAL_ADJUSTMENTS[d["goal"]][0]
@@ -2395,9 +2458,10 @@ def main():
             SM_AGE:         [MessageHandler(filters.TEXT & ~filters.COMMAND, sm_age)],
             SM_WEIGHT:      [MessageHandler(filters.TEXT & ~filters.COMMAND, sm_weight)],
             SM_HEIGHT:      [MessageHandler(filters.TEXT & ~filters.COMMAND, sm_height)],
-            SM_ACTIVITY:    [CallbackQueryHandler(sm_activity_cb, pattern=r"^sm:act:")],
-            SM_GOAL:        [CallbackQueryHandler(sm_goal_cb,     pattern=r"^sm:goal:")],
-            SM_MEALS_COUNT: [CallbackQueryHandler(sm_meals_cb,    pattern=r"^sm:meals:")],
+            SM_ACTIVITY:      [CallbackQueryHandler(sm_activity_cb,   pattern=r"^sm:act:")],
+            SM_GOAL:          [CallbackQueryHandler(sm_goal_cb,       pattern=r"^sm:goal:")],
+            SM_TARGET_WEIGHT: [MessageHandler(filters.TEXT & ~filters.COMMAND, sm_target_weight)],
+            SM_MEALS_COUNT:   [CallbackQueryHandler(sm_meals_cb,      pattern=r"^sm:meals:")],
             SM_CONFIRM:     [
                 CallbackQueryHandler(sm_confirm_cb, pattern=r"^sm:confirm$"),
                 CallbackQueryHandler(sm_confirm_cb, pattern=r"^sm:editkcal$"),
