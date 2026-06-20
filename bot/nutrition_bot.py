@@ -1327,7 +1327,11 @@ async def handle_text(update: Update, ctx: ContextTypes.DEFAULT_TYPE):
                     if gv.get("note"):  v["note"]  = gv["note"]
                     if gv.get("photo"): v["photo"]  = gv["photo"]
 
-        client["variants"] = result["variants"]
+        # Обід №2 завжди = копія Обід №1
+        v = result["variants"]
+        if "обід №1" in v and v["обід №1"]:
+            v["обід №2"] = v["обід №1"]
+        client["variants"] = v
 
         # Оновлюємо meals згідно з порядком прийомів з тексту
         meal_defs = MEAL_DEFAULTS.get(len(result["meals_order"]), {})
@@ -1702,6 +1706,11 @@ async def fast_ration(update: Update, ctx: ContextTypes.DEFAULT_TYPE):
                 if gv.get("steps"): v["steps"] = gv["steps"]
                 if gv.get("note"):  v["note"]  = gv["note"]
                 if gv.get("photo"): v["photo"]  = gv["photo"]
+
+    # Обід №2 завжди = копія Обід №1
+    rv = result["variants"]
+    if "обід №1" in rv and rv["обід №1"]:
+        rv["обід №2"] = rv["обід №1"]
 
     # Будуємо meals з meals_order
     new_meals = []
