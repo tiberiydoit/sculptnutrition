@@ -2313,6 +2313,18 @@ def main():
     if not BOT_TOKEN:
         raise RuntimeError("NUTRITION_BOT_TOKEN не задано в .env")
 
+    # Зачищаємо вебхук і чекаємо поки старий інстанс відпустить getUpdates
+    import time
+    try:
+        _requests.post(
+            f"https://api.telegram.org/bot{BOT_TOKEN}/deleteWebhook",
+            json={"drop_pending_updates": True},
+            timeout=10,
+        )
+    except Exception:
+        pass
+    time.sleep(5)
+
     app = Application.builder().token(BOT_TOKEN).build()
     app.add_error_handler(_error_handler)
 
