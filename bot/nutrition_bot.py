@@ -1483,18 +1483,32 @@ async def _handle_edit_input(update: Update, ctx: ContextTypes.DEFAULT_TYPE):
         m = client["meals"][idx]
         await update.message.reply_text(
             f"<b>{m['name']}</b> — зараз: <code>{m['kcal']} {m['p']} {m['f']} {m['c']}</code>\n\n"
-            "Введи нові значення: <code>ккал білок жир вуглеводи</code>",
+            "Введи нові значення:\n"
+            "<code>ккал білок жир вуглеводи</code>\n\n"
+            "Або щоб змінити і назву:\n"
+            "<code>Нова назва | ккал білок жир вуглеводи</code>",
             parse_mode="HTML",
         )
 
     elif field == "meal_data":
+        idx = ctx.user_data["edit_meal_idx"]
+        new_name = None
+        if "|" in text:
+            name_part, nums_part = text.split("|", 1)
+            new_name = name_part.strip()
+            text = nums_part.strip()
         try:
             kcal, p, f, c = map(int, text.split())
         except ValueError:
-            await update.message.reply_text("❌ Формат: <code>735 52 23 81</code>", parse_mode="HTML")
+            await update.message.reply_text(
+                "❌ Формат: <code>735 52 23 81</code>\n"
+                "Або з назвою: <code>Завтрак | 735 52 23 81</code>",
+                parse_mode="HTML"
+            )
             return
-        idx = ctx.user_data["edit_meal_idx"]
         client["meals"][idx].update({"kcal": kcal, "p": p, "f": f, "c": c})
+        if new_name:
+            client["meals"][idx]["name"] = new_name
         _save_client(client)
         m = client["meals"][idx]
         await update.message.reply_text(
