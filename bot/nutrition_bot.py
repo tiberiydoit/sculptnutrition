@@ -2309,9 +2309,25 @@ async def _daily_expiry_check(ctx: ContextTypes.DEFAULT_TYPE):
         )
 
 
+def _start_dummy_server():
+    """Відкриває порт щоб Render не вбивав Web Service."""
+    import threading
+    from http.server import BaseHTTPRequestHandler, HTTPServer
+    class Handler(BaseHTTPRequestHandler):
+        def do_GET(self):
+            self.send_response(200)
+            self.end_headers()
+            self.wfile.write(b"OK")
+        def log_message(self, *args): pass
+    port = int(os.getenv("PORT", "10000"))
+    server = HTTPServer(("0.0.0.0", port), Handler)
+    threading.Thread(target=server.serve_forever, daemon=True).start()
+    logger.info("Dummy HTTP server started on port %s", port)
+
 def main():
     if not BOT_TOKEN:
         raise RuntimeError("NUTRITION_BOT_TOKEN не задано в .env")
+    _start_dummy_server()
 
     # Зачищаємо вебхук і чекаємо поки старий інстанс відпустить getUpdates
     import time
@@ -2390,7 +2406,7 @@ def main():
             SM_STEPS: [MessageHandler(filters.TEXT & ~filters.COMMAND, sm_steps)],
         },
         fallbacks=[CommandHandler("cancel", sm_cancel)],
-        per_chat=True, per_message=False,
+        per_chat=True, per_message=False, per_user=True,
     )
 
     add_dish_conv = ConversationHandler(
@@ -2420,7 +2436,7 @@ def main():
             ],
         },
         fallbacks=[CommandHandler("cancel", da_cancel)],
-        per_chat=True, per_message=False,
+        per_chat=True, per_message=False, per_user=True,
     )
 
     app.add_handler(CommandHandler("start",     cmd_start))
