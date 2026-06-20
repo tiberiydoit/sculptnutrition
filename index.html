@@ -2122,10 +2122,10 @@ function applyMealLang(lang) {
     function _normMealName(name) {
       const n = name.toLowerCase().trim();
       let base = n;
-      if (n.startsWith('сніданок')) base = 'сніданок';
-      else if (n.startsWith('обід'))    base = 'обід';
-      else if (n.startsWith('вечеря'))  base = 'вечеря';
-      else if (n.startsWith('перекус')) base = 'перекус';
+      if (n.startsWith('сніданок') || n.startsWith('завтрак')) base = 'сніданок';
+      else if (n.startsWith('обід')    || n.startsWith('обед'))    base = 'обід';
+      else if (n.startsWith('вечеря')  || n.startsWith('ужин'))    base = 'вечеря';
+      else if (n.startsWith('перекус'))                             base = 'перекус';
       _keyCount[base] = (_keyCount[base] || 0) + 1;
       return _keyCount[base] === 1 ? base : `${base}_${_keyCount[base]}`;
     }
