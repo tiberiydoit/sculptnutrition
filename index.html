@@ -2072,12 +2072,12 @@ function applyMealLang(lang) {
 
 
   // ── Name ──────────────────────────────────────────────────────────────────
-  if (client.name) {
-    _clientName = client.name;
+  const _displayName = client.display_name || client.name;
+  if (_displayName) {
+    _clientName = _displayName;
     const nameSpan = document.querySelector('.header h1 span') || document.getElementById('clientNameSpan');
-    if (nameSpan) nameSpan.textContent = client.name;
-    const t = i18n.ru;
-    document.title = 'Программа питания для ' + client.name;
+    if (nameSpan) nameSpan.textContent = _displayName;
+    document.title = 'Программа питания для ' + _displayName;
   }
 
   // ── Daily summary pills ───────────────────────────────────────────────────
