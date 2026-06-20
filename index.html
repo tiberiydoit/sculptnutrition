@@ -487,39 +487,6 @@
 
   .footer-note { margin-top: 52px; text-align: center; font-size: 12px; color: rgba(122,132,153,0.35); line-height: 1.8; }
 
-  /* LANGUAGE SWITCHER */
-  .lang-switcher {
-    display: flex;
-    align-items: center;
-    gap: 4px;
-    background: rgba(255,255,255,0.05);
-    border: 1px solid var(--border);
-    border-radius: 100px;
-    padding: 4px;
-    margin: 0 auto 20px;
-    width: fit-content;
-  }
-
-  .lang-btn {
-    background: none;
-    border: none;
-    color: var(--muted);
-    font-family: 'Manrope', sans-serif;
-    font-size: 12px;
-    font-weight: 700;
-    letter-spacing: 0.5px;
-    padding: 5px 14px;
-    border-radius: 100px;
-    cursor: pointer;
-    transition: background 0.2s, color 0.2s;
-  }
-
-  .lang-btn:hover { color: var(--text); }
-
-  .lang-btn.active {
-    background: var(--accent);
-    color: #0d0f14;
-  }
 
   /* ======== MODAL ======== */
   .modal-overlay {
@@ -869,11 +836,6 @@
 </div>
 
 <div class="container" id="mainContent">
-
-  <div class="lang-switcher">
-    <button class="lang-btn active" id="btn-uk" onclick="setLang('uk')">УКР</button>
-    <button class="lang-btn" id="btn-ru" onclick="setLang('ru')">РУС</button>
-  </div>
 
   <div class="header">
     <div class="tag" data-i18n="tag">Система харчування · Сушка</div>
@@ -1429,10 +1391,6 @@ let currentLang = 'uk';
 function setLang(lang) {
   if (!i18n[lang]) return;
   currentLang = lang;
-
-  // update button states
-  document.getElementById('btn-uk').classList.toggle('active', lang === 'uk');
-  document.getElementById('btn-ru').classList.toggle('active', lang === 'ru');
 
   const t = i18n[lang];
 
