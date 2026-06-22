@@ -1915,6 +1915,9 @@ def _start_dummy_server():
             self.send_response(200)
             self.end_headers()
             self.wfile.write(b"OK")
+        def do_HEAD(self):
+            self.send_response(200)
+            self.end_headers()
         def log_message(self, *args): pass
     port = int(os.getenv("PORT", "10000"))
     server = HTTPServer(("0.0.0.0", port), Handler)
