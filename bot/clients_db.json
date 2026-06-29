@@ -3876,6 +3876,21 @@
         ]
       },
       "lang": "ru"
+    },
+    {
+      "slug": "epanovdm",
+      "name": "@epanovdm",
+      "display_name": "DANIIL",
+      "telegram_id": 1353827420,
+      "daily": {
+        "kcal": 0,
+        "protein": 0,
+        "fat": 0,
+        "carbs": 0
+      },
+      "steps": 10000,
+      "meals": [],
+      "variants": {}
     }
   ]
 }
