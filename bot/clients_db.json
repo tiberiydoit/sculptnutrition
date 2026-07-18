@@ -6495,6 +6495,21 @@
           }
         ]
       }
+    },
+    {
+      "slug": "kkks0000",
+      "name": "@kkks0000",
+      "display_name": "Erik",
+      "telegram_id": 206597045,
+      "daily": {
+        "kcal": 0,
+        "protein": 0,
+        "fat": 0,
+        "carbs": 0
+      },
+      "steps": 10000,
+      "meals": [],
+      "variants": {}
     }
   ]
 }
