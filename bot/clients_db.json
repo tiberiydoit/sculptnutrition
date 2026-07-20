@@ -3418,7 +3418,7 @@
             "c": 87,
             "steps": [],
             "note": null,
-            "photo": "сніданок_6_AQADdh1rG_5K8Up-.jpg"
+            "photo": "photos/breakfast_5_AQADdh1rG_5K8Up-.jpg"
           },
           {
             "name": "Творог с ягодами",
@@ -3532,7 +3532,8 @@
             "f": 7,
             "c": 61,
             "steps": [],
-            "note": null
+            "note": null,
+            "photo": "dinner-2.png"
           },
           {
             "name": "Салат с тунцом и авокадо",
