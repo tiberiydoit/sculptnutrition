@@ -922,7 +922,7 @@ async def cb_handler(update: Update, ctx: ContextTypes.DEFAULT_TYPE):
 
         if action == "toggle":
             client["active"] = not client.get("active", True)
-            _save_client(client)
+            _save_client(client, push=True)
             status = "включено ✅" if client["active"] else "відключено 🔴"
             await query.answer(f"Доступ {status}", show_alert=True)
             # оновити view
@@ -942,7 +942,7 @@ async def cb_handler(update: Update, ctx: ContextTypes.DEFAULT_TYPE):
 
         elif action == "noexp":
             client["expires_at"] = None
-            _save_client(client)
+            _save_client(client, push=True)
             await query.answer("Термін знятий ♾", show_alert=False)
             has_access, _ = _access_status(client)
             toggle_label = "🔴 Відключити" if has_access else "🟢 Включити"
@@ -1355,20 +1355,32 @@ async def handle_text(update: Update, ctx: ContextTypes.DEFAULT_TYPE):
             )
             return
 
-        # Підтягуємо steps/note/photo з глобальної бази по назві варіанту
+        # Підтягуємо steps/note/photo з глобальної бази по назві варіанту,
+        # якщо не знайдено по назві — беремо фото по позиції варіанту
         global_db = _load_variants()
         global_by_name = {}
         for mt_list in global_db.values():
             for gv in mt_list:
                 global_by_name[gv["name"].strip().lower()] = gv
 
+        # Маппінг normalized meal key -> список фото по позиції з глобальної бази
+        global_photos_by_mt: dict[str, list[str]] = {}
+        for mt_key_g, mt_list in global_db.items():
+            global_photos_by_mt[mt_key_g] = [gv.get("photo") for gv in mt_list]
+
         for mt_key, var_list in result["variants"].items():
-            for v in var_list:
+            # base key для пошуку фото (обід_2 -> обід)
+            base_mt = mt_key.split("_")[0]
+            position_photos = global_photos_by_mt.get(base_mt, [])
+            for i, v in enumerate(var_list):
                 gv = global_by_name.get(v["name"].strip().lower())
                 if gv:
                     if gv.get("steps"): v["steps"] = gv["steps"]
                     if gv.get("note"):  v["note"]  = gv["note"]
                     if gv.get("photo"): v["photo"]  = gv["photo"]
+                # якщо фото не знайдено по назві — беремо по позиції
+                if not v.get("photo") and i < len(position_photos) and position_photos[i]:
+                    v["photo"] = position_photos[i]
 
         # Обід №2 завжди = копія Обід №1
         v = result["variants"]
@@ -1505,7 +1517,7 @@ async def _handle_edit_input(update: Update, ctx: ContextTypes.DEFAULT_TYPE):
             await update.message.reply_text("❌ Формат: <code>2160 181 75 191</code>", parse_mode="HTML")
             return
         client["daily"] = {"kcal": kcal, "protein": p, "fat": f, "carbs": c}
-        _save_client(client)
+        _save_client(client, push=True)
         await update.message.reply_text(
             f"✅ КБЖВ <b>{_display(client)}</b> оновлено: {kcal} ккал | Б{p} Ж{f} В{c}г",
             parse_mode="HTML",
@@ -1519,7 +1531,7 @@ async def _handle_edit_input(update: Update, ctx: ContextTypes.DEFAULT_TYPE):
             await update.message.reply_text("❌ Введи число.", parse_mode="HTML")
             return
         client["steps"] = steps
-        _save_client(client)
+        _save_client(client, push=True)
         await update.message.reply_text(
             f"✅ Кроки <b>{_display(client)}</b>: {steps}", parse_mode="HTML"
         )
@@ -1564,7 +1576,7 @@ async def _handle_edit_input(update: Update, ctx: ContextTypes.DEFAULT_TYPE):
         client["meals"][idx].update({"kcal": kcal, "p": p, "f": f, "c": c})
         if new_name:
             client["meals"][idx]["name"] = new_name
-        _save_client(client)
+        _save_client(client, push=True)
         m = client["meals"][idx]
         await update.message.reply_text(
             f"✅ <b>{m['name']}</b>: {kcal} ккал | Б{p} Ж{f} В{c}г", parse_mode="HTML"
@@ -1579,7 +1591,7 @@ async def _handle_edit_input(update: Update, ctx: ContextTypes.DEFAULT_TYPE):
             return
         client["expires_at"] = text
         client["active"] = True
-        _save_client(client)
+        _save_client(client, push=True)
         days_left = (date.fromisoformat(text) - date.today()).days
         await update.message.reply_text(
             f"✅ Термін <b>{_display(client)}</b> встановлено до <b>{text}</b> ({days_left} днів)",
@@ -1762,19 +1774,27 @@ async def fast_ration(update: Update, ctx: ContextTypes.DEFAULT_TYPE):
     display_name = ctx.user_data["display_name"]
     slug         = ctx.user_data["slug"]
 
-    # Підтягуємо steps/note/photo з глобальної бази
+    # Підтягуємо steps/note/photo з глобальної бази по назві,
+    # якщо не знайдено — беремо фото по позиції
     global_db = _load_variants()
     global_by_name = {}
     for mt_list in global_db.values():
         for gv in mt_list:
             global_by_name[gv["name"].strip().lower()] = gv
-    for var_list in result["variants"].values():
-        for v in var_list:
+    global_photos_by_mt: dict[str, list[str]] = {}
+    for mt_key_g, mt_list in global_db.items():
+        global_photos_by_mt[mt_key_g] = [gv.get("photo") for gv in mt_list]
+    for mt_key, var_list in result["variants"].items():
+        base_mt = mt_key.split("_")[0]
+        position_photos = global_photos_by_mt.get(base_mt, [])
+        for i, v in enumerate(var_list):
             gv = global_by_name.get(v["name"].strip().lower())
             if gv:
                 if gv.get("steps"): v["steps"] = gv["steps"]
                 if gv.get("note"):  v["note"]  = gv["note"]
                 if gv.get("photo"): v["photo"]  = gv["photo"]
+            if not v.get("photo") and i < len(position_photos) and position_photos[i]:
+                v["photo"] = position_photos[i]
 
     # Обід №2 завжди = копія Обід №1
     rv = result["variants"]
@@ -1856,9 +1876,32 @@ async def handle_photo(update: Update, ctx: ContextTypes.DEFAULT_TYPE):
 
     photo = update.message.photo[-1]  # найбільший розмір
     file = await ctx.bot.get_file(photo.file_id)
-    filename = f"{mt}_{idx}_{photo.file_unique_id}.jpg"
-    filepath = Path(filename)
-    await file.download_to_drive(filepath)
+    photo_bytes = await file.download_as_bytearray()
+
+    # Use only ASCII chars in filename to avoid URL encoding issues
+    mt_ascii = {"сніданок": "breakfast", "обід": "lunch", "вечеря": "dinner", "перекус": "snack"}.get(mt, mt)
+    filename = f"photos/{mt_ascii}_{idx}_{photo.file_unique_id}.jpg"
+
+    # Push photo directly to GitHub
+    gh_path = filename
+    url = f"https://api.github.com/repos/{GITHUB_REPO}/contents/{gh_path}"
+    headers = {"Authorization": f"token {GITHUB_TOKEN}", "Accept": "application/vnd.github+json"}
+    content = base64.b64encode(bytes(photo_bytes)).decode()
+    # Check if file already exists (get sha)
+    existing = _requests.get(url, headers=headers, timeout=10)
+    body = {"message": f"upload photo {filename}", "content": content}
+    if existing.status_code == 200:
+        body["sha"] = existing.json()["sha"]
+    push_ok = False
+    try:
+        r = _requests.put(url, json=body, headers=headers, timeout=30)
+        push_ok = r.status_code in (200, 201)
+    except Exception as e:
+        logger.warning("photo push error: %s", e)
+
+    if not push_ok:
+        await update.message.reply_text("❌ Не вдалося завантажити фото на GitHub.")
+        return
 
     db = _load_variants()
     db[mt][idx]["photo"] = filename
