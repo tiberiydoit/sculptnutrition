@@ -115,6 +115,20 @@
       "steps": [],
       "note": null,
       "photo": "photos/сніданок_6_AQADdh1rG_5K8Up-.jpg"
+    },
+    {
+      "name": "Яичница на беконе",
+      "ingredients": [
+        "Яйцо",
+        "Бекон",
+        "Овощи"
+      ],
+      "kcal": 550,
+      "p": 45,
+      "f": 18,
+      "c": 53,
+      "steps": [],
+      "note": null
     }
   ],
   "обід": [
