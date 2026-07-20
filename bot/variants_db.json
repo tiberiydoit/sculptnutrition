@@ -100,6 +100,20 @@
       ],
       "note": null,
       "photo": "photos/сніданок_4_AQADgRxrG7kd4Eh-.jpg"
+    },
+    {
+      "name": "Яичница",
+      "ingredients": [
+        "яйца",
+        "бекон",
+        "овощи"
+      ],
+      "kcal": 550,
+      "p": 45,
+      "f": 18,
+      "c": 53,
+      "steps": [],
+      "note": null
     }
   ],
   "обід": [
