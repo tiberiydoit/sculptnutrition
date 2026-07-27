@@ -4003,7 +4003,8 @@
             "f": 23,
             "c": 49,
             "steps": [],
-            "note": null
+            "note": null,
+            "photo": "dinner-2.png"
           },
           {
             "name": "Салат с тунцом и бананом",
@@ -4019,7 +4020,8 @@
             "f": 22,
             "c": 49,
             "steps": [],
-            "note": null
+            "note": null,
+            "photo": "dinner-3.png"
           },
           {
             "name": "Творожный коктейль",
