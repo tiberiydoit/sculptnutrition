@@ -102,21 +102,6 @@
       "photo": "photos/сніданок_4_AQADgRxrG7kd4Eh-.jpg"
     },
     {
-      "name": "Яичница на беконе",
-      "ingredients": [
-        "Яйца",
-        "Бекон",
-        "Овощи"
-      ],
-      "kcal": 550,
-      "p": 45,
-      "f": 18,
-      "c": 53,
-      "steps": [],
-      "note": null,
-      "photo": "photos/breakfast_5_AQADdh1rG_5K8Up-.jpg"
-    },
-    {
       "name": "Омлет с грибами и шпинатом",
       "ingredients": [
         "3 яйца",
