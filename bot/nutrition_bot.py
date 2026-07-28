@@ -1347,13 +1347,19 @@ async def handle_text(update: Update, ctx: ContextTypes.DEFAULT_TYPE):
             await update.message.reply_text("Клієнта не знайдено.")
             ctx.user_data.pop("vg_state", None)
             return
-        result = _parse_variants_text(text)
+        # Склеюємо частини якщо Telegram розбив повідомлення на кілька
+        prev = ctx.user_data.get("_vc_text_buf", "")
+        combined = (prev + "\n" + text).strip() if prev else text
+        result = _parse_variants_text(combined)
         if not result:
+            ctx.user_data["_vc_text_buf"] = combined
             await update.message.reply_text(
-                "❌ Не вдалося розпізнати варіанти.\n\nПеревір формат.",
+                "⏳ Отримав частину тексту. Надішли наступну частину або /cancel щоб скасувати.",
                 parse_mode="HTML",
             )
             return
+        ctx.user_data.pop("_vc_text_buf", None)
+        text = combined
 
         # Підтягуємо steps/note/photo з глобальної бази по назві варіанту,
         # якщо не знайдено по назві — беремо фото по позиції варіанту
@@ -1762,14 +1768,20 @@ async def fast_steps(update: Update, ctx: ContextTypes.DEFAULT_TYPE):
     pass  # не використовується
 
 async def fast_ration(update: Update, ctx: ContextTypes.DEFAULT_TYPE):
-    text = update.message.text.strip()
+    incoming = update.message.text.strip()
+    # Склеюємо частини якщо Telegram розбив повідомлення на кілька
+    prev = ctx.user_data.get("_ration_buf", "")
+    text = (prev + "\n" + incoming).strip() if prev else incoming
     result = _parse_variants_text(text)
     if not result:
+        # Зберігаємо буфер і чекаємо наступну частину
+        ctx.user_data["_ration_buf"] = text
         await update.message.reply_text(
-            "❌ Не вдалося розпізнати варіанти. Перевір формат і спробуй ще раз або /cancel",
+            "⏳ Отримав частину тексту. Надішли наступну частину або /cancel щоб скасувати.",
             parse_mode="HTML",
         )
         return FAST_RATION
+    ctx.user_data.pop("_ration_buf", None)
 
     display_name = ctx.user_data["display_name"]
     slug         = ctx.user_data["slug"]
