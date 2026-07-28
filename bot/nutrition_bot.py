@@ -1189,9 +1189,10 @@ async def cb_handler(update: Update, ctx: ContextTypes.DEFAULT_TYPE):
             return
         ctx.user_data["vc_slug"]  = slug
         ctx.user_data["vg_state"] = "vc_text"
+        ctx.user_data.pop("_vc_text_buf", None)
         await query.edit_message_text(
             f"👤 <b>{_display(client)}</b>\n\n"
-            f"Вставте повний текст варіантів по всіх прийомах.\n\n"
+            f"Вставте текст варіантів. Якщо план не вміщається в одне повідомлення — надсилай частинами, а після останньої напиши <b>ГОТОВО</b>.\n\n"
             f"<b>Формат:</b>\n"
             f"<code>СНІДАНОК\n"
             f"---\n"
@@ -1347,18 +1348,29 @@ async def handle_text(update: Update, ctx: ContextTypes.DEFAULT_TYPE):
             await update.message.reply_text("Клієнта не знайдено.")
             ctx.user_data.pop("vg_state", None)
             return
-        # Склеюємо частини якщо Telegram розбив повідомлення на кілька
+        # Накопичуємо частини — парсимо тільки коли надіслано "ГОТОВО"
         prev = ctx.user_data.get("_vc_text_buf", "")
-        combined = (prev + "\n" + text).strip() if prev else text
-        result = _parse_variants_text(combined)
-        if not result:
+        if text.strip().upper() == "ГОТОВО":
+            if not prev:
+                await update.message.reply_text("⚠️ Спочатку надішли текст плану, потім ГОТОВО.")
+                return
+            combined = prev
+            ctx.user_data.pop("_vc_text_buf", None)
+        else:
+            combined = (prev + "\n" + text).strip() if prev else text
             ctx.user_data["_vc_text_buf"] = combined
             await update.message.reply_text(
-                "⏳ Отримав частину тексту. Надішли наступну частину або /cancel щоб скасувати.",
+                "⏳ Отримав частину. Надішли наступну або напиши <b>ГОТОВО</b> щоб зберегти.",
                 parse_mode="HTML",
             )
             return
-        ctx.user_data.pop("_vc_text_buf", None)
+        result = _parse_variants_text(combined)
+        if not result:
+            await update.message.reply_text(
+                "❌ Не вдалося розпізнати варіанти.\n\nПеревір формат.",
+                parse_mode="HTML",
+            )
+            return
         text = combined
 
         # Підтягуємо steps/note/photo з глобальної бази по назві варіанту,
@@ -1769,19 +1781,29 @@ async def fast_steps(update: Update, ctx: ContextTypes.DEFAULT_TYPE):
 
 async def fast_ration(update: Update, ctx: ContextTypes.DEFAULT_TYPE):
     incoming = update.message.text.strip()
-    # Склеюємо частини якщо Telegram розбив повідомлення на кілька
     prev = ctx.user_data.get("_ration_buf", "")
-    text = (prev + "\n" + incoming).strip() if prev else incoming
-    result = _parse_variants_text(text)
-    if not result:
-        # Зберігаємо буфер і чекаємо наступну частину
-        ctx.user_data["_ration_buf"] = text
+    # Парсимо тільки коли надіслано "ГОТОВО"
+    if incoming.upper() == "ГОТОВО":
+        if not prev:
+            await update.message.reply_text("⚠️ Спочатку надішли текст плану, потім ГОТОВО.")
+            return FAST_RATION
+        text = prev
+        ctx.user_data.pop("_ration_buf", None)
+    else:
+        combined = (prev + "\n" + incoming).strip() if prev else incoming
+        ctx.user_data["_ration_buf"] = combined
         await update.message.reply_text(
-            "⏳ Отримав частину тексту. Надішли наступну частину або /cancel щоб скасувати.",
+            "⏳ Отримав частину. Надішли наступну або напиши <b>ГОТОВО</b> щоб зберегти.",
             parse_mode="HTML",
         )
         return FAST_RATION
-    ctx.user_data.pop("_ration_buf", None)
+    result = _parse_variants_text(text)
+    if not result:
+        await update.message.reply_text(
+            "❌ Не вдалося розпізнати варіанти. Перевір формат і спробуй ще раз або /cancel",
+            parse_mode="HTML",
+        )
+        return FAST_RATION
 
     display_name = ctx.user_data["display_name"]
     slug         = ctx.user_data["slug"]
