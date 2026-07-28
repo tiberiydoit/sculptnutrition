@@ -74,7 +74,7 @@ CLIENT_TEXTS = {
         "greeting_ready": "Привіт, <b>{name}</b>!\n\nТут твій персональний план харчування від тренера.\nНатисни кнопку нижче щоб відкрити його 👇",
         "greeting_wait":  "Привіт, <b>{name}</b>! 👋\n\nТвій план харчування ще готується.\nЯк тільки буде готовий — отримаєш повідомлення.",
         "greeting_noact": "Привіт, <b>{name}</b>!\n\nТвій доступ до плану харчування завершився.\nЗв'яжись з тренером для продовження.",
-        "plan_updated":   "<b>{name}</b>, твій план харчування оновлено!",
+        "plan_updated":   "<b>{name}</b>, твой план питания обновлён! 🔥",
         "btn_plan":       "Мій план",
         "btn_plan_menu":  "Мій план",
     },
@@ -1208,6 +1208,90 @@ async def cb_handler(update: Update, ctx: ContextTypes.DEFAULT_TYPE):
             parse_mode="HTML",
         )
 
+    elif data == "vc:done":
+        buf = ctx.user_data.get("_vc_text_buf", "")
+        if not buf:
+            await query.answer("Немає тексту для збереження.", show_alert=True)
+            return
+        # Імітуємо надсилання "ГОТОВО" через підміну тексту
+        update.message = type("FakeMsg", (), {
+            "text": "ГОТОВО",
+            "reply_text": query.message.reply_text,
+        })()
+        # Викликаємо handle_text напряму з підміненим текстом
+        slug = ctx.user_data.get("vc_slug")
+        combined = buf
+        ctx.user_data.pop("_vc_text_buf", None)
+        from telegram import Message
+        # Парсимо і зберігаємо напряму
+        result = _parse_variants_text(combined)
+        if not result:
+            await query.edit_message_text("❌ Не вдалося розпізнати варіанти. Перевір формат.")
+            ctx.user_data["_vc_text_buf"] = combined
+            return
+        client = _get_client_by_slug(slug)
+        if not client:
+            await query.edit_message_text("Клієнта не знайдено.")
+            return
+        global_db = _load_variants()
+        global_by_name = {}
+        for mt_list in global_db.values():
+            for gv in mt_list:
+                global_by_name[gv["name"].strip().lower()] = gv
+        global_photos_by_mt: dict[str, list[str]] = {}
+        for mt_key_g, mt_list in global_db.items():
+            global_photos_by_mt[mt_key_g] = [gv.get("photo") for gv in mt_list]
+        for mt_key, var_list in result["variants"].items():
+            base_mt = mt_key.split("_")[0]
+            position_photos = global_photos_by_mt.get(base_mt, [])
+            for i, v in enumerate(var_list):
+                gv = global_by_name.get(v["name"].strip().lower())
+                if gv:
+                    if gv.get("steps"): v["steps"] = gv["steps"]
+                    if gv.get("note"):  v["note"]  = gv["note"]
+                    if gv.get("photo"): v["photo"]  = gv["photo"]
+                if not v.get("photo") and i < len(position_photos) and position_photos[i]:
+                    v["photo"] = position_photos[i]
+        rv = result["variants"]
+        if "обід №1" in rv and rv["обід №1"]:
+            rv["обід №2"] = rv["обід №1"]
+        client["variants"] = result["variants"]
+        new_meals = []
+        for i, mo in enumerate(result["meals_order"]):
+            n = len(result["meals_order"])
+            time = MEAL_DEFAULTS[n][i][1] if n in MEAL_DEFAULTS and i < len(MEAL_DEFAULTS[n]) else ""
+            new_meals.append({
+                "name": mo["label"], "time": time,
+                "kcal": mo["kcal"], "p": mo["p"], "f": mo["f"], "c": mo["c"],
+            })
+        client["meals"] = new_meals
+        if result["daily"]:
+            client["daily"] = result["daily"]
+        _save_client(client, push=True)
+        ctx.user_data.pop("vg_state", None)
+        total = sum(len(v) for v in result["variants"].values())
+        meals_list = ", ".join(f"{mo['label']} ({len(result['variants'].get(mo['key'], []))})" for mo in result["meals_order"])
+        daily_info = ""
+        if result["daily"]:
+            d = result["daily"]
+            daily_info = f"\n📊 КБЖВ оновлено: {d['kcal']} ккал | Б{d['protein']} Ж{d['fat']} В{d['carbs']}г"
+        await query.edit_message_text(
+            f"✅ Збережено <b>{total}</b> варіантів для <b>{_display(client)}</b>:\n"
+            f"{meals_list}{daily_info}\n\n"
+            f"Надіслати оновлений план клієнту?",
+            parse_mode="HTML",
+            reply_markup=InlineKeyboardMarkup([[
+                InlineKeyboardButton("📤 Надіслати план", callback_data=f"send:{slug}"),
+                InlineKeyboardButton("⏭ Пізніше",        callback_data=f"view:{slug}"),
+            ]]),
+        )
+
+    elif data == "vc:cancel":
+        ctx.user_data.pop("_vc_text_buf", None)
+        ctx.user_data.pop("vg_state", None)
+        ctx.user_data.pop("vc_slug", None)
+        await query.edit_message_text("❌ Скасовано.")
+
     elif data == "variants:main":
         await cmd_variants_menu(update, ctx)
 
@@ -1360,8 +1444,12 @@ async def handle_text(update: Update, ctx: ContextTypes.DEFAULT_TYPE):
             combined = (prev + "\n" + text).strip() if prev else text
             ctx.user_data["_vc_text_buf"] = combined
             await update.message.reply_text(
-                "⏳ Отримав частину. Надішли наступну або напиши <b>ГОТОВО</b> щоб зберегти.",
+                "⏳ Отримав частину. Надішли наступну або натисни кнопку нижче щоб зберегти.",
                 parse_mode="HTML",
+                reply_markup=InlineKeyboardMarkup([[
+                    InlineKeyboardButton("✅ Готово", callback_data="vc:done"),
+                    InlineKeyboardButton("❌ Скасувати", callback_data="vc:cancel"),
+                ]]),
             )
             return
         result = _parse_variants_text(combined)
