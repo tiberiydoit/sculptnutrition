@@ -1211,7 +1211,10 @@ async def cb_handler(update: Update, ctx: ContextTypes.DEFAULT_TYPE):
     elif data == "vc:done":
         buf = ctx.user_data.get("_vc_text_buf", "")
         if not buf:
-            await query.answer("Немає тексту для збереження.", show_alert=True)
+            await query.edit_message_text(
+                "⚠️ Сесія закінчилась або текст не знайдено. Почни знову — обери клієнта і надішли план.",
+                reply_markup=InlineKeyboardMarkup([[InlineKeyboardButton("← Назад", callback_data="vc:menu")]]),
+            )
             return
         # Імітуємо надсилання "ГОТОВО" через підміну тексту
         update.message = type("FakeMsg", (), {
