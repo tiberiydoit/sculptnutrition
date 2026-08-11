@@ -10516,6 +10516,46 @@
         ]
       },
       "lang": "ru"
+    },
+    {
+      "slug": "yarik",
+      "name": "yarik",
+      "display_name": "Yarik",
+      "telegram_id": 1774275618,
+      "daily": {
+        "kcal": 2400,
+        "protein": 188,
+        "fat": 80,
+        "carbs": 227
+      },
+      "steps": 10000,
+      "meals": [
+        {
+          "name": "Сніданок",
+          "time": "",
+          "kcal": 550,
+          "p": 45,
+          "f": 18,
+          "c": 53
+        }
+      ],
+      "variants": {
+        "сніданок": [
+          {
+            "name": "Назва",
+            "ingredients": [
+              "інгредієнт"
+            ],
+            "kcal": 550,
+            "p": 45,
+            "f": 18,
+            "c": 53,
+            "steps": [],
+            "note": null,
+            "photo": "breakfast-1.png"
+          }
+        ]
+      }
     }
   ]
 }
