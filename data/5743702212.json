@@ -1,0 +1,16 @@
+{
+  "slug": "5743702212",
+  "name": "5743702212",
+  "display_name": "gang",
+  "telegram_id": 5743702212,
+  "daily": {
+    "kcal": 0,
+    "protein": 0,
+    "fat": 0,
+    "carbs": 0
+  },
+  "steps": 10000,
+  "meals": [],
+  "variants": {},
+  "active": false
+}
