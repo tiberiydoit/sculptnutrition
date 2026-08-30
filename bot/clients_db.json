@@ -11492,6 +11492,21 @@
           }
         ]
       }
+    },
+    {
+      "slug": "beti0011",
+      "name": "@beti0011",
+      "display_name": "Антон",
+      "telegram_id": 1477463432,
+      "daily": {
+        "kcal": 0,
+        "protein": 0,
+        "fat": 0,
+        "carbs": 0
+      },
+      "steps": 10000,
+      "meals": [],
+      "variants": {}
     }
   ]
 }
