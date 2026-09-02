@@ -4,10 +4,10 @@
   "display_name": "Тиберий",
   "telegram_id": 5592963991,
   "daily": {
-    "kcal": 2700,
+    "kcal": 1730,
     "protein": 170,
-    "fat": 65,
-    "carbs": 358
+    "fat": 58,
+    "carbs": 133
   },
   "steps": 10000,
   "meals": [
