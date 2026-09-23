@@ -11670,6 +11670,21 @@
         ]
       },
       "lang": "ru"
+    },
+    {
+      "slug": "5470180853",
+      "name": "5470180853",
+      "display_name": "Vlad",
+      "telegram_id": 5470180853,
+      "daily": {
+        "kcal": 0,
+        "protein": 0,
+        "fat": 0,
+        "carbs": 0
+      },
+      "steps": 10000,
+      "meals": [],
+      "variants": {}
     }
   ]
 }
