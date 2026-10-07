@@ -12601,6 +12601,21 @@
         ]
       },
       "lang": "uk"
+    },
+    {
+      "slug": "denysHuk000",
+      "name": "@denysHuk000",
+      "display_name": "…🇨🇭",
+      "telegram_id": 6254716785,
+      "daily": {
+        "kcal": 0,
+        "protein": 0,
+        "fat": 0,
+        "carbs": 0
+      },
+      "steps": 10000,
+      "meals": [],
+      "variants": {}
     }
   ]
 }
