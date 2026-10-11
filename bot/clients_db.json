@@ -12633,6 +12633,21 @@
       "meals": [],
       "variants": {},
       "lang": "uk"
+    },
+    {
+      "slug": "Daniel_576388",
+      "name": "@Daniel_576388",
+      "display_name": "Daniel",
+      "telegram_id": 2037999829,
+      "daily": {
+        "kcal": 0,
+        "protein": 0,
+        "fat": 0,
+        "carbs": 0
+      },
+      "steps": 10000,
+      "meals": [],
+      "variants": {}
     }
   ]
 }
