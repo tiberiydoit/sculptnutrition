@@ -510,6 +510,7 @@
     width: 100%; max-width: 900px;
     max-height: 90vh;
     overflow-y: auto;
+    -webkit-overflow-scrolling: touch;
     overscroll-behavior: contain;
     padding-bottom: 48px;
     transform: translateY(60px);
@@ -630,6 +631,9 @@
     justify-content: center;
     padding: 14px 10px;
     min-height: 160px;
+    will-change: transform;
+    -webkit-transform: translateZ(0);
+    transform: translateZ(0);
   }
 
   .variant-photo img {
@@ -639,6 +643,9 @@
     object-fit: contain;
     display: block;
     filter: drop-shadow(0 6px 18px rgba(0,0,0,0.45));
+    will-change: transform;
+    -webkit-transform: translateZ(0);
+    transform: translateZ(0);
   }
 
   .variant-photo-grad {
