@@ -1652,7 +1652,7 @@ function buildVariantHTML(v) {
   const photoBg = v.photoBg || photoData.photoBg || '#1c2330';
 
   const photoHTML = photo
-    ? `<img src="${photo}" alt="${v.name}" loading="lazy" onerror="this.parentElement.innerHTML='<div class=\\'variant-photo-grad\\'  style=\\'background:#1c2330\\'>🍽️</div>'">`
+    ? `<img src="${photo}" alt="${v.name}" loading="eager" decoding="async" onerror="this.style.display='none';this.parentElement.innerHTML+='<div class=\\'variant-photo-grad\\'  style=\\'background:#1c2330\\'>🍽️</div>'">`
     : `<div class="variant-photo-grad" style="background:${v.gradient || '#1c2330'}"><span style="filter:drop-shadow(0 4px 10px rgba(0,0,0,0.4))">${v.emoji || '🍽️'}</span></div>`;
 
   const t = i18n.ru;
@@ -2031,10 +2031,14 @@ function applyMealLang(lang) {
     meals[k].tip  = data.tip;
     data.variants.forEach((v, i) => {
       if (!meals[k].variants[i]) return;
-      meals[k].variants[i].name        = v.name;
-      meals[k].variants[i].ingredients = v.ingredients;
-      meals[k].variants[i].steps       = v.steps;
-      meals[k].variants[i].note        = v.note;
+      meals[k].variants[i].name = v.name;
+      // Only overwrite ingredients/steps/note from hardcode if the variant is NOT dynamic (from bot JSON).
+      // Dynamic variants have ingredients as plain strings; hardcoded ones are objects with {name,p,f,c,kcal}.
+      if (!meals[k].variants[i]._dynamic) {
+        meals[k].variants[i].ingredients = v.ingredients;
+        meals[k].variants[i].steps       = v.steps;
+        meals[k].variants[i].note        = v.note;
+      }
       // keep _ukName intact (set once during snapshot, never overwritten)
     });
   });
@@ -2140,7 +2144,9 @@ function applyMealLang(lang) {
         meals[key].name  = m.name;
         meals[key].time  = m.time;
         meals[key].total = { kcal: m.kcal, p: m.p, f: m.f, c: m.c };
-        if (dynVariants.length) meals[key].variants = dynVariants;
+        if (dynVariants.length) {
+          meals[key].variants = dynVariants.map(v => Object.assign({}, v, { _dynamic: true }));
+        }
       } else {
         meals[key] = {
           name: m.name,
@@ -2149,7 +2155,7 @@ function applyMealLang(lang) {
           iconBg: 'rgba(232,255,71,0.1)',
           total: { kcal: m.kcal, p: m.p, f: m.f, c: m.c },
           tip: '',
-          variants: dynVariants,
+          variants: dynVariants.map(v => Object.assign({}, v, { _dynamic: true })),
         };
       }
 
