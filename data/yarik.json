@@ -129,7 +129,7 @@
           "Сложить омлет пополам и сразу подать."
         ],
         "note": "Если грибы дают много жидкости — обжаривать на среднем огне первые 1-2 минуты. Вместо шпината можно использовать рукколу или салатный микс.",
-        "photo": "photos/breakfast_omelette.jpg"
+        "photo": "photos/breakfast_omelette.webp"
       },
       {
         "name": "Сэндвич с крем-сыром, лососем и огурцом",
@@ -151,7 +151,7 @@
           "Украсить свежей зеленью и сразу подавать."
         ],
         "note": null,
-        "photo": "photos/breakfast_salmon_sandwich.jpg"
+        "photo": "photos/breakfast_salmon_sandwich.webp"
       },
       {
         "name": "Соленая овсянка с тунцом и крем-сыром",
@@ -174,7 +174,7 @@
           "Подаем: выкладываем овсянку в глубокую тарелку, рядом выкладываем свежий салат."
         ],
         "note": null,
-        "photo": "photos/breakfast_savory_oatmeal_tuna.jpg"
+        "photo": "photos/breakfast_savory_oatmeal_tuna.webp"
       },
       {
         "name": "Киноа с куриным филе, шпинатом и крем-сыром",
@@ -196,7 +196,7 @@
           "Сбрызнуть маслом и подать."
         ],
         "note": "Шпинат добавлять в самом конце — 30–40 секунд от тепла готового блюда. Вместо шпината можно рукколу (добавлять при подаче).",
-        "photo": "photos/lunch_quinoa_chicken.jpg"
+        "photo": "photos/lunch_quinoa_chicken.webp"
       },
       {
         "name": "Гречка с индейкой, йогуртовым соусом и огурцом",
@@ -218,7 +218,7 @@
           "Соединяем гречку с индейкой и огурцом. Йогуртовый соус добавляем сверху перед подачей или подаем отдельно."
         ],
         "note": "Вместо укропа — зеленый лук.",
-        "photo": "photos/breakfast_buckwheat_turkey.jpg"
+        "photo": "photos/breakfast_buckwheat_turkey.webp"
       },
       {
         "name": "Боул с курицей, овощами и рисом басмати",
@@ -241,7 +241,7 @@
           "Собрать боул: руккола, рис, овощи, курица — полить заправкой перед подачей."
         ],
         "note": "Вместо риса можно использовать киноа.",
-        "photo": "photos/lunch_bowl_chicken.jpg"
+        "photo": "photos/lunch_bowl_chicken.webp"
       },
       {
         "name": "Запеченная овсянка с яблоком",
@@ -264,7 +264,7 @@
           "Запекайте при 180°C 25–30 минут до готовности и золотистой корочки."
         ],
         "note": null,
-        "photo": "photos/breakfast_baked_oatmeal_apple.jpg"
+        "photo": "photos/breakfast_baked_oatmeal_apple.webp"
       },
       {
         "name": "Пита с хумусом, фетой и индейкой + печеный перец",
@@ -286,7 +286,7 @@
           "Собираем питу: хумус наносим тонким слоем на внутренние стенки, выкладываем рукколу, добавляем индейку и запеченные овощи, сверху крошим фету. Сбрызгиваем маслом и добавляем специи по вкусу."
         ],
         "note": "Запеченным овощам даем остыть 3–5 минут перед сборкой — так пита не размокнет. Вместо феты — козий сыр.",
-        "photo": "photos/breakfast_pita_hummus_turkey.jpg"
+        "photo": "photos/breakfast_pita_hummus_turkey.webp"
       },
       {
         "name": "Рисовая каша на молоке со сливочным маслом",
@@ -308,7 +308,7 @@
           "По желанию присыпьте ванилью или корицей, подавайте теплой и сверху дайте арахисовой пасты."
         ],
         "note": null,
-        "photo": "photos/breakfast_rice_porridge.jpg"
+        "photo": "photos/breakfast_rice_porridge.webp"
       },
       {
         "name": "Манная каша на молоке с протеином",
@@ -332,7 +332,7 @@
           "Подавайте с ягодами и посыпьте кокосовой стружкой."
         ],
         "note": null,
-        "photo": "photos/breakfast_semolina_protein.jpg"
+        "photo": "photos/breakfast_semolina_protein.webp"
       }
     ],
     "обід": [
@@ -376,7 +376,7 @@
           "Собрать боул: руккола, рис, овощи, курица — полить заправкой перед подачей."
         ],
         "note": "Вместо риса можно использовать киноа.",
-        "photo": "photos/lunch_bowl_chicken.jpg"
+        "photo": "photos/lunch_bowl_chicken.webp"
       },
       {
         "name": "Киноа с куриным филе, шпинатом и крем-сыром",
@@ -398,7 +398,7 @@
           "Сбрызнуть маслом и подать."
         ],
         "note": "Шпинат добавлять в самом конце — 30–40 секунд от тепла готового блюда. Вместо шпината можно рукколу (добавлять при подаче).",
-        "photo": "photos/lunch_quinoa_chicken.jpg"
+        "photo": "photos/lunch_quinoa_chicken.webp"
       },
       {
         "name": "Курица BBQ с бататом и коул-слоу лайт",
@@ -421,7 +421,7 @@
           "Выложить батат и курицу, коул-слоу отдельно, посыпать петрушкой перед подачей."
         ],
         "note": null,
-        "photo": "photos/lunch_bbq_chicken_batata.jpg"
+        "photo": "photos/lunch_bbq_chicken_batata.webp"
       },
       {
         "name": "Стейк тунца с рисом, огурцом и авокадо",
@@ -443,7 +443,7 @@
           "Выложить рис, рядом — тунец, огурец и авокадо. Посыпать кунжутом, зеленым луком и кинзой."
         ],
         "note": null,
-        "photo": "photos/lunch_tuna_steak.jpg"
+        "photo": "photos/lunch_tuna_steak.webp"
       },
       {
         "name": "Тефтели из индейки с цельнозерновой пастой",
@@ -464,7 +464,7 @@
           "Смешать пасту с соусом, выложить тефтели сверху, посыпать петрушкой."
         ],
         "note": null,
-        "photo": "photos/lunch_turkey_pasta.jpg"
+        "photo": "photos/lunch_turkey_pasta.webp"
       },
       {
         "name": "Курица карри лайт с рисом и шпинатом",
@@ -487,7 +487,7 @@
           "Выложить рис, сверху — курицу в карри-соусе. Посыпать петрушкой по желанию."
         ],
         "note": null,
-        "photo": "photos/lunch_chicken_curry.jpg"
+        "photo": "photos/lunch_chicken_curry.webp"
       },
       {
         "name": "Треска в травах с печеным картофелем и капустным салатом",
@@ -510,7 +510,7 @@
           "Выложите треску, рядом — картофель и салат. Перед подачей сбрызните рыбу несколькими каплями лимона."
         ],
         "note": null,
-        "photo": "photos/lunch_cod_herbs.jpg"
+        "photo": "photos/lunch_cod_herbs.webp"
       },
       {
         "name": "Индейка в паприке с гречкой и салатом огурец-помидор",
@@ -531,7 +531,7 @@
           "Выложите гречку на тарелку, сверху — индейку. Посыпьте петрушкой. Салат подайте рядом."
         ],
         "note": null,
-        "photo": "photos/lunch_turkey_paprika.jpg"
+        "photo": "photos/lunch_turkey_paprika.webp"
       }
     ],
     "обід_2": [
@@ -575,7 +575,7 @@
           "Собрать боул: руккола, рис, овощи, курица — полить заправкой перед подачей."
         ],
         "note": "Вместо риса можно использовать киноа.",
-        "photo": "photos/lunch_bowl_chicken.jpg"
+        "photo": "photos/lunch_bowl_chicken.webp"
       },
       {
         "name": "Киноа с куриным филе, шпинатом и крем-сыром",
@@ -597,7 +597,7 @@
           "Сбрызнуть маслом и подать."
         ],
         "note": "Шпинат добавлять в самом конце — 30–40 секунд от тепла готового блюда. Вместо шпината можно рукколу (добавлять при подаче).",
-        "photo": "photos/lunch_quinoa_chicken.jpg"
+        "photo": "photos/lunch_quinoa_chicken.webp"
       },
       {
         "name": "Курица BBQ с бататом и коул-слоу лайт",
@@ -620,7 +620,7 @@
           "Выложить батат и курицу, коул-слоу отдельно, посыпать петрушкой перед подачей."
         ],
         "note": null,
-        "photo": "photos/lunch_bbq_chicken_batata.jpg"
+        "photo": "photos/lunch_bbq_chicken_batata.webp"
       },
       {
         "name": "Стейк тунца с рисом, огурцом и авокадо",
@@ -642,7 +642,7 @@
           "Выложить рис, рядом — тунец, огурец и авокадо. Посыпать кунжутом, зеленым луком и кинзой."
         ],
         "note": null,
-        "photo": "photos/lunch_tuna_steak.jpg"
+        "photo": "photos/lunch_tuna_steak.webp"
       },
       {
         "name": "Тефтели из индейки с цельнозерновой пастой",
@@ -663,7 +663,7 @@
           "Смешать пасту с соусом, выложить тефтели сверху, посыпать петрушкой."
         ],
         "note": null,
-        "photo": "photos/lunch_turkey_pasta.jpg"
+        "photo": "photos/lunch_turkey_pasta.webp"
       },
       {
         "name": "Курица карри лайт с рисом и шпинатом",
@@ -686,7 +686,7 @@
           "Выложить рис, сверху — курицу в карри-соусе. Посыпать петрушкой по желанию."
         ],
         "note": null,
-        "photo": "photos/lunch_chicken_curry.jpg"
+        "photo": "photos/lunch_chicken_curry.webp"
       },
       {
         "name": "Треска в травах с печеным картофелем и капустным салатом",
@@ -709,7 +709,7 @@
           "Выложите треску, рядом — картофель и салат. Перед подачей сбрызните рыбу несколькими каплями лимона."
         ],
         "note": null,
-        "photo": "photos/lunch_cod_herbs.jpg"
+        "photo": "photos/lunch_cod_herbs.webp"
       },
       {
         "name": "Индейка в паприке с гречкой и салатом огурец-помидор",
@@ -730,7 +730,7 @@
           "Выложите гречку на тарелку, сверху — индейку. Посыпьте петрушкой. Салат подайте рядом."
         ],
         "note": null,
-        "photo": "photos/lunch_turkey_paprika.jpg"
+        "photo": "photos/lunch_turkey_paprika.webp"
       }
     ],
     "вечеря": [
@@ -774,7 +774,7 @@
           "Выключите плиту, добавьте соль, перец, лимонный сок и зелень."
         ],
         "note": null,
-        "photo": "photos/dinner_chicken_soup.jpg"
+        "photo": "photos/dinner_chicken_soup.webp"
       },
       {
         "name": "Треска с травами и печеной цветной капустой",
@@ -796,7 +796,7 @@
           "Положите рыбу на противень рядом с капустой и запекайте еще 12–14 минут."
         ],
         "note": "Если хотите менее сладкий вкус — уменьшите мед до 3 г, но глазурь оставляйте.",
-        "photo": "photos/dinner_cod_cauliflower.jpg"
+        "photo": "photos/dinner_cod_cauliflower.webp"
       },
       {
         "name": "Салат Тунец-фасоль с томатами",
@@ -819,7 +819,7 @@
           "Подавайте сразу или дайте постоять 5 минут."
         ],
         "note": null,
-        "photo": "photos/dinner_tuna_bean_salad.jpg"
+        "photo": "photos/dinner_tuna_bean_salad.webp"
       },
       {
         "name": "Йогуртовый салат с тунцом и огурцом",
@@ -841,7 +841,7 @@
           "Подавайте сразу или охладите 10 минут."
         ],
         "note": "Для большей сытости добавьте цельнозерновой хлеб — 60 г (2 куска) или рис — 120 г (вареный).",
-        "photo": "photos/dinner_tuna_yogurt_salad.jpg"
+        "photo": "photos/dinner_tuna_yogurt_salad.webp"
       },
       {
         "name": "Индейка с грибами и шпинатом",
@@ -866,7 +866,7 @@
           "Верните на слабый огонь на 30–40 секунд, добавьте шпинат, перемешайте до размягчения зелени и выключайте."
         ],
         "note": "Йогурт всегда вводим при пониженной температуре — тогда соус получается гладким.",
-        "photo": "photos/dinner_turkey_mushroom_spinach.jpg"
+        "photo": "photos/dinner_turkey_mushroom_spinach.webp"
       },
       {
         "name": "Тунец-стейк с авокадо и салатом",
@@ -889,7 +889,7 @@
           "Подача: выложите тунец на салат, посыпьте кунжутом."
         ],
         "note": "Если тунец пережарить, он станет сухим. Лучше обжаривать быстро и на сильном огне.",
-        "photo": "photos/dinner_tuna_steak_avocado.jpg"
+        "photo": "photos/dinner_tuna_steak_avocado.webp"
       },
       {
         "name": "Салат с курицей и авокадо",
@@ -968,7 +968,7 @@
         "c": 118,
         "steps": [],
         "note": null,
-        "photo": "photos/dinner_tuna_steak_avocado.jpg"
+        "photo": "photos/dinner_tuna_steak_avocado.webp"
       }
     ]
   }
