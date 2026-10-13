@@ -521,14 +521,13 @@
   }
 
   .modal-overlay.open .modal-sheet {
+    transform: translate3d(0, 0, 0);
     -webkit-transform: translate3d(0, 0, 0);
   }
 
   .modal-sheet::-webkit-scrollbar { width: 4px; }
   .modal-sheet::-webkit-scrollbar-track { background: transparent; }
   .modal-sheet::-webkit-scrollbar-thumb { background: rgba(255,255,255,0.1); border-radius: 2px; }
-
-  .modal-overlay.open .modal-sheet { transform: translateY(0); }
 
   @media (min-width: 700px) {
     .modal-overlay { align-items: center; }
@@ -1750,10 +1749,27 @@ function buildVariantHTML(v) {
   `;
 }
 
+function preloadImages(urls) {
+  urls.forEach(function(url) {
+    if (!url) return;
+    var img = new Image();
+    img.src = url;
+  });
+}
+
 function openModal(key) {
   const meal = meals[key];
   if (!meal) return;
   _openModalKey = key;
+
+  // Preload all photos for this meal before rendering
+  if (meal.variants && meal.variants.length) {
+    var photoUrls = meal.variants.map(function(v) {
+      var photoData = VARIANT_PHOTOS[v._ukName || v.name] || {};
+      return v.photo || photoData.photo || null;
+    }).filter(Boolean);
+    preloadImages(photoUrls);
+  }
 
   const icon = document.getElementById('modalIcon');
   icon.textContent = meal.icon;
