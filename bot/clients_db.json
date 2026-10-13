@@ -12649,6 +12649,21 @@
       "meals": [],
       "variants": {},
       "lang": "ru"
+    },
+    {
+      "slug": "8623999010",
+      "name": "8623999010",
+      "display_name": "Tiberii",
+      "telegram_id": 8623999010,
+      "daily": {
+        "kcal": 0,
+        "protein": 0,
+        "fat": 0,
+        "carbs": 0
+      },
+      "steps": 10000,
+      "meals": [],
+      "variants": {}
     }
   ]
 }
