@@ -15760,6 +15760,21 @@
         ]
       },
       "lang": "uk"
+    },
+    {
+      "slug": "Brothefrmmthr",
+      "name": "@Brothefrmmthr",
+      "display_name": "Konstantin",
+      "telegram_id": 760941047,
+      "daily": {
+        "kcal": 0,
+        "protein": 0,
+        "fat": 0,
+        "carbs": 0
+      },
+      "steps": 10000,
+      "meals": [],
+      "variants": {}
     }
   ]
 }
