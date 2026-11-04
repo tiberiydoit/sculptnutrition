@@ -17328,6 +17328,21 @@
         ]
       },
       "lang": "ru"
+    },
+    {
+      "slug": "BBasil87",
+      "name": "@BBasil87",
+      "display_name": "Basil",
+      "telegram_id": 418307200,
+      "daily": {
+        "kcal": 0,
+        "protein": 0,
+        "fat": 0,
+        "carbs": 0
+      },
+      "steps": 10000,
+      "meals": [],
+      "variants": {}
     }
   ]
 }
