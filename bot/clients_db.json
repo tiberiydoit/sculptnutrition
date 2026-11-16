@@ -18340,22 +18340,6 @@
         ]
       },
       "lang": "uk"
-    },
-    {
-      "slug": "vitalii10101",
-      "name": "@vitalii10101",
-      "display_name": "Vitalii",
-      "telegram_id": 6002874718,
-      "daily": {
-        "kcal": 0,
-        "protein": 0,
-        "fat": 0,
-        "carbs": 0
-      },
-      "steps": 10000,
-      "meals": [],
-      "variants": {},
-      "lang": "uk"
     }
   ]
 }
