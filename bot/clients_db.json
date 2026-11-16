@@ -18340,21 +18340,6 @@
         ]
       },
       "lang": "uk"
-    },
-    {
-      "slug": "E4fMSqahC",
-      "name": "@E4fMSqahC",
-      "display_name": "Telegram引流业务 广告不回复",
-      "telegram_id": 1800221851,
-      "daily": {
-        "kcal": 0,
-        "protein": 0,
-        "fat": 0,
-        "carbs": 0
-      },
-      "steps": 10000,
-      "meals": [],
-      "variants": {}
     }
   ]
 }
