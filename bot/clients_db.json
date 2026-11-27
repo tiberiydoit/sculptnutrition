@@ -18402,7 +18402,8 @@
       },
       "steps": 10000,
       "meals": [],
-      "variants": {}
+      "variants": {},
+      "lang": "uk"
     }
   ]
 }
