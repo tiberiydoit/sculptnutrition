@@ -18372,6 +18372,21 @@
       "meals": [],
       "variants": {},
       "lang": "uk"
+    },
+    {
+      "slug": "Yura988",
+      "name": "@Yura988",
+      "display_name": "💸",
+      "telegram_id": 7732941774,
+      "daily": {
+        "kcal": 0,
+        "protein": 0,
+        "fat": 0,
+        "carbs": 0
+      },
+      "steps": 10000,
+      "meals": [],
+      "variants": {}
     }
   ]
 }
