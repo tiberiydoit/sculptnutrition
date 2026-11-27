@@ -18388,6 +18388,21 @@
       "meals": [],
       "variants": {},
       "lang": "uk"
+    },
+    {
+      "slug": "wwwwvrrrr",
+      "name": "@wwwwvrrrr",
+      "display_name": "_vi.talik_",
+      "telegram_id": 1240378746,
+      "daily": {
+        "kcal": 0,
+        "protein": 0,
+        "fat": 0,
+        "carbs": 0
+      },
+      "steps": 10000,
+      "meals": [],
+      "variants": {}
     }
   ]
 }
